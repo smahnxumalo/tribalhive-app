@@ -1,0 +1,4612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+  <title>TribalHive — Tribal Data Drives Smart Development</title>
+  <style>
+    /* ═══════════════════════════════════════════
+       TOKENS — dark with blue map theme
+    ═══════════════════════════════════════════ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --bg-deep: #060e0a;
+      --bg-panel: #0d1e14;
+      --bg-card: #0f2a1c;
+      --bg-elevated: #1a3a2a;
+      --border-subtle: rgba(0, 180, 255, 0.12);
+      --border-active: rgba(0, 180, 255, 0.3);
+      --text-primary: #eaf5ef;
+      --text-secondary: #9abfae;
+      --text-muted: #5b7d6a;
+
+      --map-blue: #00b4ff;
+      --map-blue-glow: rgba(0, 180, 255, 0.3);
+      --map-teal: #00d4ff;
+      --map-node-high: #00d4ff;
+      --map-node-med: #0099cc;
+      --map-node-low: #006688;
+      --map-clan-gold: #ffb800;
+      --map-clan-glow: rgba(255, 184, 0, 0.4);
+
+      --accent-green: #4ae8a0;
+      --accent-gold: #e8b84a;
+      --accent-red: #e84a5a;
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.6);
+      --shadow-glow: 0 0 40px rgba(0, 180, 255, 0.05);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      outline: none;
+      background: none;
+      color: inherit;
+    }
+    input,
+    textarea {
+      font-family: inherit;
+      border: none;
+      outline: none;
+      background: none;
+      color: inherit;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-deep);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--map-blue);
+      border-radius: 4px;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      background: var(--bg-deep);
+    }
+    .screen.active {
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════
+       SHARED COMPONENTS
+    ═══════════════════════════════════════════ */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--accent-green);
+      color: var(--bg-deep);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 13px 28px;
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+      box-shadow: 0 0 20px rgba(74, 232, 160, 0.15);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px rgba(74, 232, 160, 0.25);
+    }
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: transparent;
+      color: var(--accent-green);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 28px;
+      border: 1.5px solid var(--accent-green);
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+    .btn-outline:hover {
+      background: rgba(74, 232, 160, 0.08);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .pill-green {
+      background: rgba(74, 232, 160, 0.12);
+      color: var(--accent-green);
+      border: 1px solid rgba(74, 232, 160, 0.2);
+    }
+    .pill-gold {
+      background: rgba(232, 184, 74, 0.12);
+      color: var(--accent-gold);
+      border: 1px solid rgba(232, 184, 74, 0.2);
+    }
+    .pill-dark {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+    }
+    .pill-outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+    .pill-blue {
+      background: rgba(0, 180, 255, 0.12);
+      color: var(--map-blue);
+      border: 1px solid rgba(0, 180, 255, 0.2);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: var(--shadow-card);
+    }
+    .card-green {
+      background: rgba(74, 232, 160, 0.06);
+      border-color: rgba(74, 232, 160, 0.15);
+    }
+    .card-gold {
+      background: rgba(232, 184, 74, 0.06);
+      border-color: rgba(232, 184, 74, 0.15);
+    }
+    .card-blue {
+      background: rgba(0, 180, 255, 0.04);
+      border-color: rgba(0, 180, 255, 0.12);
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 16px 0;
+    }
+
+    .prog-track {
+      height: 4px;
+      background: var(--bg-elevated);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .prog-fill-g {
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-green), #7affb8);
+      border-radius: 4px;
+    }
+    .prog-fill-gold {
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-gold), #f5d76e);
+      border-radius: 4px;
+    }
+    .prog-fill-blue {
+      height: 4px;
+      background: linear-gradient(90deg, var(--map-blue), var(--map-teal));
+      border-radius: 4px;
+    }
+
+    .cip-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(232, 184, 74, 0.1);
+      border: 1px solid rgba(232, 184, 74, 0.15);
+      color: var(--accent-gold);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* ═══════════════════════════════════════════
+       LANDING (clean, no blue overload)
+    ═══════════════════════════════════════════ */
+    .l-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: rgba(6, 14, 10, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .l-nav-logo {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--map-blue);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.02em;
+    }
+    .l-nav-logo .hex {
+      font-size: 20px;
+    }
+    .l-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .l-nav-link {
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.15s;
+      display: none;
+    }
+    .l-nav-link:hover {
+      color: var(--text-primary);
+    }
+    .l-nav-link.visible {
+      display: inline-block;
+    }
+
+    .l-hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 20px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .l-hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0, 180, 255, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .l-hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(0, 180, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 180, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+    .l-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: var(--map-blue);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .eyebrow-line {
+      width: 28px;
+      height: 1px;
+      background: var(--map-blue);
+    }
+    .l-h1 {
+      font-size: clamp(30px, 8vw, 68px);
+      font-weight: 900;
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    .l-h1 .accent {
+      color: var(--map-blue);
+    }
+    .l-tribes {
+      font-size: clamp(12px, 1.4vw, 15px);
+      font-weight: 700;
+      color: var(--accent-gold);
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+    }
+    .l-sub {
+      font-size: clamp(13px, 1.5vw, 16px);
+      color: var(--text-secondary);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    .l-ctas {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 50px;
+    }
+
+    .l-preview {
+      max-width: 760px;
+      width: 100%;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card), var(--shadow-glow);
+      position: relative;
+      z-index: 2;
+    }
+    .preview-bar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 14px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .pb-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .pb-url {
+      flex: 1;
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .preview-content {
+      display: flex;
+      height: 220px;
+      background: var(--bg-deep);
+    }
+    .prev-sb {
+      width: 120px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      padding: 10px 8px;
+      flex-shrink: 0;
+    }
+    .prev-sb-logo {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--map-blue);
+      margin-bottom: 10px;
+    }
+    .prev-sb-item {
+      font-size: 10px;
+      color: var(--text-muted);
+      padding: 5px 8px;
+      border-radius: 6px;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .prev-sb-item.on {
+      background: rgba(0, 180, 255, 0.08);
+      color: var(--map-blue);
+      font-weight: 600;
+      border-left: 2px solid var(--map-blue);
+    }
+    .prev-map {
+      flex: 1;
+      background: var(--bg-deep);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .l-mission {
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      text-align: center;
+      padding: 50px 20px;
+    }
+    .l-mission-q {
+      font-size: clamp(18px, 2.6vw, 30px);
+      font-weight: 700;
+      max-width: 640px;
+      margin: 0 auto 10px;
+      line-height: 1.42;
+      color: var(--text-primary);
+    }
+    .l-mission-q em {
+      color: var(--map-blue);
+      font-style: normal;
+    }
+    .l-mission-s {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .l-hiw {
+      padding: 60px 20px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .l-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+    }
+    .l-step {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .l-step:hover {
+      border-color: var(--map-blue);
+      box-shadow: var(--shadow-glow);
+    }
+    .l-step-n {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--map-blue);
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
+    .l-step-ico {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .l-step-t {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .l-step-b {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .l-stats {
+      display: flex;
+      max-width: 680px;
+      margin: 0 auto 50px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--bg-panel);
+    }
+    .l-stat {
+      flex: 1;
+      padding: 20px 12px;
+      text-align: center;
+      border-right: 1px solid var(--border-subtle);
+    }
+    .l-stat:last-child {
+      border-right: none;
+    }
+    .l-stat-n {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--text-primary);
+    }
+    .l-stat-n b {
+      color: var(--map-blue);
+    }
+    .l-stat-l {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      letter-spacing: 0.04em;
+    }
+
+    .l-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .l-footer-logo {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--map-blue);
+    }
+    .l-footer-tag {
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ═══════════════════════════════════════════
+       ONBOARDING
+    ═══════════════════════════════════════════ */
+    #onboarding {
+      min-height: 100vh;
+      background: var(--bg-deep);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+    }
+    .ob-wrap {
+      width: 100%;
+      max-width: 520px;
+    }
+    .ob-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--map-blue);
+      margin-bottom: 24px;
+    }
+    .ob-prog-wrap {
+      margin-bottom: 24px;
+    }
+    .ob-prog-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .ob-chat {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+      min-height: 240px;
+      max-height: 340px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .ai-bubble {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px 18px 18px 4px;
+      padding: 12px 16px;
+      max-width: 88%;
+    }
+    .ai-lbl {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--map-blue);
+      margin-bottom: 4px;
+    }
+    .ai-txt {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .clan-greeting {
+      color: var(--map-blue);
+      font-weight: 800;
+    }
+    .user-bubble {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-active);
+      border-radius: 18px 18px 4px 18px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text-primary);
+      max-width: 75%;
+      align-self: flex-end;
+    }
+    .typing-bubble {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px 18px 18px 4px;
+      padding: 10px 14px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      width: fit-content;
+    }
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--map-blue);
+      animation: bounce 0.9s ease-in-out infinite;
+    }
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+    @keyframes bounce {
+      0%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.4;
+      }
+      50% {
+        transform: translateY(-4px);
+        opacity: 1;
+      }
+    }
+
+    .ob-input-row {
+      display: flex;
+      gap: 10px;
+    }
+    .ob-input {
+      flex: 1;
+      font-size: 13px;
+      padding: 12px 16px;
+      background: var(--bg-panel);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      transition: border-color 0.15s;
+    }
+    .ob-input:focus {
+      border-color: var(--map-blue);
+    }
+    .ob-input::placeholder {
+      color: var(--text-muted);
+    }
+    .ob-send {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--map-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      color: var(--bg-deep);
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .ob-send:hover {
+      background: var(--map-teal);
+    }
+
+    .ob-complete {
+      text-align: center;
+    }
+    .ob-complete-ico {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(0, 180, 255, 0.08);
+      border: 2px solid var(--map-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 0 auto 14px;
+    }
+    .ob-complete-h {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+      letter-spacing: -0.02em;
+    }
+    .ob-complete-clan {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--map-blue);
+      margin-bottom: 4px;
+    }
+    .ob-complete-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+    .ob-cip-card {
+      background: rgba(232, 184, 74, 0.06);
+      border: 1px solid rgba(232, 184, 74, 0.15);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .ob-cip-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-bottom: 2px;
+    }
+    .ob-cip-n {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--accent-gold);
+      margin-bottom: 2px;
+    }
+    .ob-cip-s {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════════
+       APP SHELL
+    ═══════════════════════════════════════════ */
+    #app {
+      display: none;
+      flex-direction: row;
+      height: 100vh;
+      background: var(--bg-deep);
+    }
+    #app.active {
+      display: flex;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-card);
+    }
+    .sb-logo {
+      padding: 16px 14px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--map-blue);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.02em;
+    }
+    .sb-logo-sub {
+      font-size: 8px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display: block;
+      margin-top: 1px;
+    }
+    .sb-nav {
+      padding: 8px 6px;
+      flex: 1;
+    }
+    .sb-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-bottom: 2px;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .sb-item:hover {
+      background: rgba(0, 180, 255, 0.05);
+      color: var(--text-primary);
+    }
+    .sb-item.on {
+      background: rgba(0, 180, 255, 0.08);
+      color: var(--map-blue);
+      font-weight: 600;
+      border-left-color: var(--map-blue);
+    }
+    .sb-item .ico {
+      font-size: 16px;
+    }
+    .sb-profile {
+      margin: 6px 8px;
+      padding: 10px 12px;
+      background: rgba(0, 180, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+    }
+    .sb-profile-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .sb-profile-clan {
+      font-size: 9px;
+      color: var(--map-blue);
+      margin-top: 1px;
+    }
+    .sb-tagline {
+      padding: 10px 14px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 7px;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .main {
+      flex: 1;
+      margin-left: 220px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-deep);
+    }
+    .topbar {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-panel);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: var(--shadow-card);
+      flex-shrink: 0;
+    }
+    .tb-tag {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .tb-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tb-profile {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 180, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 4px 10px 4px 4px;
+      cursor: pointer;
+    }
+    .tb-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--map-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 800;
+      color: var(--bg-deep);
+    }
+    .tb-name {
+      font-size: 11px;
+      color: var(--map-blue);
+      font-weight: 600;
+    }
+
+    .page-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .tab {
+      display: none;
+    }
+    .tab.active {
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════
+       HOME TAB
+    ═══════════════════════════════════════════ */
+    .home-wrap {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    .home-greeting {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 2px;
+    }
+    .home-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* ── Home Challenge Card (NEW) ── */
+    .home-challenge-card {
+      background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
+      border: 1px solid var(--accent-gold);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 30px rgba(232, 184, 74, 0.04);
+    }
+    .home-challenge-card:hover {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 40px rgba(232, 184, 74, 0.08);
+      transform: translateY(-1px);
+    }
+    .home-challenge-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .home-challenge-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .home-challenge-reward {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+    .home-challenge-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .home-challenge-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .home-challenge-progress .prog-track {
+      flex: 1;
+      height: 5px;
+    }
+    .home-challenge-progress .prog-fill-gold {
+      height: 5px;
+    }
+    .home-challenge-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      flex-shrink: 0;
+    }
+    .home-challenge-action {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      text-align: right;
+    }
+    .home-challenge-action span {
+      color: var(--accent-gold);
+    }
+
+    .home-chat {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+      min-height: 240px;
+    }
+    .home-suggestions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .home-input-row {
+      display: flex;
+      gap: 10px;
+    }
+    .home-input {
+      flex: 1;
+      font-size: 13px;
+      padding: 12px 16px;
+      background: var(--bg-panel);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 24px;
+      color: var(--text-primary);
+      transition: border-color 0.15s;
+    }
+    .home-input:focus {
+      border-color: var(--map-blue);
+    }
+    .home-input::placeholder {
+      color: var(--text-muted);
+    }
+    .home-send {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--map-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      color: var(--bg-deep);
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .home-send:hover {
+      background: var(--map-teal);
+    }
+
+    /* ═══════════════════════════════════════════
+       MAP TAB — BLUE THEME
+    ═══════════════════════════════════════════ */
+    .map-shell {
+      display: flex;
+      height: calc(100vh - 57px);
+      overflow: hidden;
+    }
+    .map-left {
+      width: 230px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+    .map-left-header {
+      padding: 12px 14px 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .map-left-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1px;
+    }
+    .map-left-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .cat-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+      border-bottom: 1px solid rgba(0, 180, 255, 0.03);
+    }
+    .cat-item:hover {
+      background: rgba(0, 180, 255, 0.04);
+    }
+    .cat-item.on {
+      background: rgba(0, 180, 255, 0.06);
+      border-left-color: var(--map-blue);
+    }
+    .cat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+    .cat-name {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .cat-item.on .cat-name {
+      color: var(--map-blue);
+      font-weight: 700;
+    }
+    .cat-pct {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .cat-item.on .cat-pct {
+      color: var(--map-blue);
+    }
+    .cat-bar-track {
+      height: 2px;
+      background: var(--bg-elevated);
+      border-radius: 2px;
+    }
+    .cat-bar-fill {
+      height: 2px;
+      border-radius: 2px;
+      background: var(--map-blue);
+      transition: width 0.4s;
+    }
+    .cat-bar-fill.warn {
+      background: var(--accent-gold);
+    }
+    .cat-bar-fill.danger {
+      background: var(--accent-red);
+    }
+
+    .sub-panel {
+      display: none;
+      background: rgba(0, 180, 255, 0.02);
+      padding: 2px 0;
+    }
+    .sub-panel.open {
+      display: block;
+    }
+    .sub-item {
+      padding: 5px 20px;
+      font-size: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .sub-item:hover,
+    .sub-item.on {
+      color: var(--map-blue);
+      font-weight: 600;
+    }
+
+    .clan-list-wrap {
+      border-top: 1px solid var(--border-subtle);
+      padding: 6px 0;
+    }
+    .clan-section-title {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+    }
+    .clan-row-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .clan-row-item:hover {
+      background: rgba(0, 180, 255, 0.04);
+    }
+    .clan-row-item.on {
+      background: rgba(0, 180, 255, 0.06);
+    }
+    .clan-row-name {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .clan-row-item.mine .clan-row-name {
+      color: var(--map-clan-gold);
+      font-weight: 700;
+    }
+    .clan-row-pct {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .map-canvas {
+      flex: 1;
+      background: var(--bg-deep);
+      position: relative;
+      overflow: hidden;
+    }
+    .map-canvas svg {
+      transition: transform 0.1s ease;
+      transform-origin: center center;
+    }
+
+    .map-hud {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hud-box {
+      background: rgba(13, 30, 20, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      box-shadow: var(--shadow-card);
+    }
+    .hud-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .hud-sub {
+      font-size: 10px;
+      color: var(--map-blue);
+      margin-top: 1px;
+    }
+    .hud-clan {
+      background: rgba(255, 184, 0, 0.06);
+      border: 1px solid rgba(255, 184, 0, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      display: none;
+    }
+    .hud-clan.show {
+      display: block;
+    }
+    .hud-clan-l {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+    .hud-clan-v {
+      font-size: 11px;
+      color: var(--map-clan-gold);
+      font-weight: 700;
+      margin-top: 1px;
+    }
+
+    .map-legend {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
+      background: rgba(13, 30, 20, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      box-shadow: var(--shadow-card);
+      pointer-events: none;
+    }
+    .legend-title {
+      font-size: 8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 4px;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .legend-circle {
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .zoom-ctrl {
+      position: absolute;
+      right: 12px;
+      bottom: 70px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .z-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .z-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--map-blue);
+    }
+
+    .node-tooltip {
+      position: absolute;
+      z-index: 50;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-active);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      min-width: 170px;
+      display: none;
+      box-shadow: var(--shadow-card), var(--shadow-glow);
+      pointer-events: none;
+    }
+    .nt-district {
+      font-size: 9px;
+      color: var(--map-blue);
+      font-weight: 600;
+      margin-bottom: 1px;
+    }
+    .nt-city {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .nt-pct {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--map-teal);
+      margin-bottom: 3px;
+    }
+    .nt-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .nt-val {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .nt-mine {
+      background: rgba(255, 184, 0, 0.08);
+      border: 1px solid rgba(255, 184, 0, 0.2);
+      border-radius: 4px;
+      padding: 4px 6px;
+      font-size: 9px;
+      color: var(--map-clan-gold);
+      margin-top: 4px;
+      display: none;
+    }
+    .nt-hint {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .map-clan-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-active);
+      border-radius: 16px 16px 0 0;
+      padding: 14px 18px;
+      box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6);
+      display: none;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .map-clan-sheet.show {
+      display: block;
+      transform: translateY(0);
+    }
+    .mcs-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      font-size: 16px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .mcs-label {
+      font-size: 9px;
+      color: var(--map-blue);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 2px;
+    }
+    .mcs-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .mcs-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .mcs-chip {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mcs-chip:hover {
+      background: rgba(0, 180, 255, 0.06);
+      border-color: var(--map-blue);
+      color: var(--map-blue);
+    }
+    .mcs-chip.mine {
+      background: rgba(255, 184, 0, 0.08);
+      border-color: var(--map-clan-gold);
+      color: var(--map-clan-gold);
+      font-weight: 700;
+    }
+    .mcs-note {
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESOURCE EXPLORER (unchanged)
+    ═══════════════════════════════════════════ */
+    .resource-wrap {
+      padding: 20px 16px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .resource-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .resource-h {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 2px;
+    }
+    .resource-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .province-filter {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .resource-split {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .resource-map {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      position: relative;
+      overflow: hidden;
+      min-height: 180px;
+    }
+    .resource-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .res-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .res-row:hover {
+      border-color: var(--map-blue);
+      box-shadow: var(--shadow-glow);
+    }
+    .res-row.active {
+      border-color: var(--map-blue);
+      background: rgba(0, 180, 255, 0.04);
+    }
+    .res-row-ico {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .res-row-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .res-row-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .res-row-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .res-row-pct {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--map-blue);
+    }
+    .res-row-lock {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .res-detail {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .res-detail-header {
+      background: rgba(0, 180, 255, 0.04);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 16px 18px;
+    }
+    .res-detail-name {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+      letter-spacing: -0.02em;
+    }
+    .res-detail-meta {
+      font-size: 11px;
+      color: var(--map-blue);
+      margin-bottom: 8px;
+    }
+    .res-detail-prog {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .res-detail-prog-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--map-blue);
+    }
+    .res-detail-cip {
+      font-size: 11px;
+      color: var(--accent-gold);
+      font-weight: 700;
+    }
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    @media (max-width: 600px) {
+      .icon-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    .icon-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      position: relative;
+      transition: all 0.2s;
+      border: 2px solid var(--border-subtle);
+      background: var(--bg-panel);
+    }
+    .icon-circle:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-glow);
+    }
+    .icon-circle.done {
+      background: rgba(0, 180, 255, 0.08);
+      border-color: var(--map-blue);
+    }
+    .icon-circle.next {
+      background: rgba(232, 184, 74, 0.08);
+      border-color: var(--accent-gold);
+    }
+    .icon-circle.locked {
+      background: var(--bg-deep);
+      border-style: dashed;
+      opacity: 0.5;
+    }
+    .icon-check {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--map-blue);
+      color: var(--bg-deep);
+      font-size: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--bg-deep);
+    }
+    .icon-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-align: center;
+    }
+    .icon-label.done {
+      color: var(--map-blue);
+      font-weight: 700;
+    }
+    .icon-label.next {
+      color: var(--accent-gold);
+      font-weight: 700;
+    }
+    .icon-content {
+      padding: 18px 16px;
+    }
+    .icon-content-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .icon-content-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .icon-map {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      min-height: 120px;
+      position: relative;
+      overflow: hidden;
+    }
+    .fact-block {
+      background: rgba(0, 180, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+    .fact-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--map-blue);
+      margin-bottom: 4px;
+    }
+    .fact-body {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .tl-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      position: relative;
+      padding-left: 16px;
+    }
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 8px;
+      bottom: -2px;
+      width: 1px;
+      background: var(--border-subtle);
+    }
+    .tl-item:last-child::before {
+      display: none;
+    }
+    .tl-dot-w {
+      position: absolute;
+      left: 0;
+      top: 3px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--map-blue);
+      border: 2px solid var(--bg-deep);
+      box-shadow: 0 0 0 2px var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .tl-dot-w.future {
+      background: var(--accent-gold);
+      box-shadow: 0 0 0 2px rgba(232, 184, 74, 0.2);
+    }
+    .tl-era {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--map-blue);
+      margin-bottom: 1px;
+    }
+    .tl-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .tl-body {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .trade-route {
+      background: rgba(0, 180, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .trade-line {
+      position: absolute;
+      top: 50%;
+      left: 8%;
+      width: 84%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--map-blue), var(--map-teal), var(--accent-gold));
+      opacity: 0.3;
+      transform: translateY(-50%);
+    }
+    .trade-stops {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+    .trade-stop {
+      text-align: center;
+    }
+    .trade-stop-ico {
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
+    .trade-stop-lbl {
+      font-size: 9px;
+      color: var(--map-blue);
+      font-weight: 600;
+    }
+    .trade-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--map-blue);
+      box-shadow: 0 0 0 3px rgba(0, 180, 255, 0.2);
+      position: absolute;
+      animation: slide-dot 3s linear infinite;
+    }
+    @keyframes slide-dot {
+      0% {
+        left: 10%;
+      }
+      100% {
+        left: 85%;
+      }
+    }
+    .trade-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .trade-stat {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      text-align: center;
+    }
+    .trade-stat-n {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--map-blue);
+    }
+    .trade-stat-n.gold {
+      color: var(--accent-gold);
+    }
+    .trade-stat-l {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .hive-ai-bar {
+      margin: 0;
+      padding: 14px 16px;
+      background: rgba(0, 180, 255, 0.04);
+      border-top: 1px solid var(--border-subtle);
+    }
+    .hive-ai-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--map-blue);
+      margin-bottom: 6px;
+    }
+    .hive-ai-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .hive-ai-input {
+      flex: 1;
+      font-size: 12px;
+      padding: 8px 12px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      transition: border-color 0.15s;
+    }
+    .hive-ai-input:focus {
+      border-color: var(--map-blue);
+    }
+    .hive-ai-input::placeholder {
+      color: var(--text-muted);
+    }
+    .hive-ai-btn {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 8px 16px;
+      background: var(--map-blue);
+      color: var(--bg-deep);
+      border-radius: var(--radius-sm);
+    }
+    .hive-ai-chips {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .cip-claim {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-active);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+    }
+    .cip-claim-h {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .cip-claim-s {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .cip-claim-btn {
+      background: var(--map-blue);
+      color: var(--bg-deep);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 7px 14px;
+      border-radius: 8px;
+    }
+
+    /* ═══════════════════════════════════════════
+       PROJECT STORY (fully preserved)
+    ═══════════════════════════════════════════ */
+    .story-shell {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      height: calc(100vh - 57px);
+    }
+    .story-list {
+      border-right: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      padding: 0;
+      background: var(--bg-panel);
+    }
+    .story-search {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .story-search-input {
+      width: 100%;
+      font-size: 12px;
+      padding: 7px 12px;
+      background: var(--bg-deep);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      color: var(--text-primary);
+    }
+    .story-search-input::placeholder {
+      color: var(--text-muted);
+    }
+    .story-filters {
+      display: flex;
+      gap: 4px;
+      padding: 6px 10px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: nowrap;
+    }
+    .story-card {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .story-card:hover {
+      background: rgba(0, 180, 255, 0.04);
+    }
+    .story-card.active {
+      background: rgba(0, 180, 255, 0.06);
+      border-left: 2px solid var(--map-blue);
+    }
+    .sc-badges {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+    .sc-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+      line-height: 1.3;
+    }
+    .sc-loc {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .sc-stats {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+    .story-detail {
+      overflow-y: auto;
+      background: var(--bg-deep);
+    }
+    .story-detail-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .sd-badges {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+    .sd-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 2px;
+    }
+    .sd-loc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+    .sd-nav {
+      display: flex;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .sd-nav-tab {
+      flex: 1;
+      text-align: center;
+      font-size: 10px;
+      padding: 7px 4px;
+      cursor: pointer;
+      color: var(--text-muted);
+      border-right: 1px solid var(--border-subtle);
+      transition: all 0.15s;
+    }
+    .sd-nav-tab:last-child {
+      border-right: none;
+    }
+    .sd-nav-tab.on {
+      background: var(--bg-elevated);
+      color: var(--map-blue);
+      font-weight: 700;
+    }
+    .story-section {
+      padding: 18px 20px;
+      display: none;
+    }
+    .story-section.on {
+      display: block;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: center;
+    }
+    .stat-n {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--map-blue);
+    }
+    .stat-l {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .resource-links {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .resource-link-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .resource-link-item:hover {
+      border-color: var(--map-blue);
+      background: rgba(0, 180, 255, 0.04);
+    }
+    .rli-ico {
+      font-size: 18px;
+    }
+    .rli-text {
+      flex: 1;
+      min-width: 0;
+    }
+    .rli-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .rli-sub {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+    .rli-arrow {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .poll-q {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .poll-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .poll-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      width: 120px;
+      flex-shrink: 0;
+    }
+    .poll-track {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-elevated);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .poll-fill {
+      height: 6px;
+      background: var(--map-blue);
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .poll-pct {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--map-blue);
+      width: 28px;
+      text-align: right;
+    }
+    .poll-count {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .voice-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--map-blue);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .voice-q {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 2px;
+    }
+    .voice-attr {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+    .add-voice {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .add-voice-input {
+      width: 100%;
+      font-size: 12px;
+      padding: 10px 12px;
+      color: var(--text-primary);
+      min-height: 60px;
+      resize: none;
+      border: none;
+      background: var(--bg-card);
+      font-family: inherit;
+    }
+    .add-voice-input::placeholder {
+      color: var(--text-muted);
+    }
+    .add-voice-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-subtle);
+    }
+    .ai-challenge {
+      background: rgba(0, 180, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .ai-ch-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--map-blue);
+      margin-bottom: 2px;
+    }
+    .ai-ch-q {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-style: italic;
+      line-height: 1.5;
+    }
+    .legacy-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .legacy-check input {
+      margin-top: 2px;
+      accent-color: var(--map-blue);
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+    .legacy-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .ai-projection {
+      background: rgba(232, 184, 74, 0.04);
+      border: 1px solid rgba(232, 184, 74, 0.15);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      margin-top: 12px;
+    }
+    .ai-proj-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+    }
+    .ai-proj-body {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════════
+       PROFILE TAB — with sub-tabs (NEW)
+    ═══════════════════════════════════════════ */
+    .profile-wrap {
+      padding: 20px 16px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Profile sub-navigation (NEW) */
+    .profile-sub-nav {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+    }
+    .profile-sub-tab {
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 0.15s;
+      border-bottom: 2px solid transparent;
+    }
+    .profile-sub-tab:hover {
+      color: var(--text-primary);
+      background: rgba(0, 180, 255, 0.03);
+    }
+    .profile-sub-tab.on {
+      color: var(--map-blue);
+      border-bottom-color: var(--map-blue);
+    }
+    .profile-sub-pane {
+      display: none;
+    }
+    .profile-sub-pane.on {
+      display: block;
+    }
+
+    /* Profile Hero (existing) */
+    .profile-hero {
+      background: linear-gradient(135deg, var(--bg-panel) 0%, var(--bg-card) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .profile-avatar-lg {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(0, 180, 255, 0.12);
+      border: 2px solid var(--map-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      flex-shrink: 0;
+      color: var(--map-blue);
+    }
+    .profile-name {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 2px;
+    }
+    .profile-clan {
+      font-size: 12px;
+      color: var(--map-blue);
+      margin-bottom: 1px;
+    }
+    .profile-region {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .profile-rank {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .profile-rank-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+    .profile-cip {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 10px;
+    }
+    .badge-item {
+      text-align: center;
+    }
+    .badge-ico-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      margin: 0 auto 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      border: 1.5px solid var(--border-subtle);
+      background: var(--bg-card);
+    }
+    .badge-ico-box.earned {
+      background: rgba(232, 184, 74, 0.08);
+      border-color: var(--accent-gold);
+    }
+    .badge-ico-box.locked {
+      opacity: 0.3;
+      background: var(--bg-deep);
+      border-style: dashed;
+    }
+    .badge-name {
+      font-size: 9px;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+    .badge-name.earned {
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .legacy-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .legacy-stat {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: center;
+    }
+    .legacy-n {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--map-blue);
+    }
+    .legacy-l {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .rank-prog {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 12px;
+    }
+    .rank-step {
+      flex: 1;
+      text-align: center;
+    }
+    .rank-step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      margin: 0 auto 2px;
+      border: 2px solid var(--border-subtle);
+    }
+    .rank-step-dot.done {
+      background: rgba(0, 180, 255, 0.08);
+      border-color: var(--map-blue);
+    }
+    .rank-step-dot.current {
+      background: var(--map-blue);
+      border-color: var(--map-blue);
+      box-shadow: 0 0 0 4px rgba(0, 180, 255, 0.15);
+    }
+    .rank-step-label {
+      font-size: 8px;
+      color: var(--text-muted);
+    }
+    .rank-step-label.current {
+      color: var(--map-blue);
+      font-weight: 700;
+    }
+    .rank-line {
+      flex: 1;
+      height: 2px;
+      background: var(--border-subtle);
+      margin-top: -12px;
+    }
+    .rank-line.done {
+      background: var(--map-blue);
+    }
+
+    .challenge-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .ch-ico-box {
+      font-size: 18px;
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .ch-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .ch-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1px;
+    }
+    .ch-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .ch-right {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .ch-prog-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .ch-cip {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--map-blue);
+    }
+    .ch-cip.gold {
+      color: var(--accent-gold);
+    }
+
+    /* ═══════════════════════════════════════════
+       CHALLENGES SUB-TAB (NEW)
+    ═══════════════════════════════════════════ */
+    .active-challenge-card {
+      background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
+      border: 1.5px solid var(--accent-gold);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 0 30px rgba(232, 184, 74, 0.04);
+    }
+    .ac-label {
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .ac-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      margin-bottom: 2px;
+    }
+    .ac-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .ac-prog-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .ac-reward {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    .ch-list {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .ch-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .ch-item:last-child {
+      border-bottom: none;
+    }
+    .ch-ico {
+      font-size: 18px;
+      width: 30px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .ch-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .ch-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1px;
+    }
+    .ch-sub {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .ch-right {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .ch-prog-lbl {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .ch-cip {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+    .ch-cip.gold {
+      color: var(--accent-gold);
+    }
+    .ch-cip.done {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    /* Leaderboards (NEW) */
+    .leader-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .leader-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .leader-card-header {
+      background: rgba(0, 180, 255, 0.04);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 8px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--map-blue);
+    }
+    .leader-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .leader-item:last-child {
+      border-bottom: none;
+    }
+    .leader-rank {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      width: 16px;
+    }
+    .leader-rank.top {
+      color: var(--accent-gold);
+    }
+    .leader-name {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex: 1;
+    }
+    .leader-name .clan-link {
+      color: var(--accent-gold);
+    }
+    .leader-score {
+      font-size: 10px;
+      color: var(--accent-green);
+      font-weight: 700;
+    }
+
+    /* Two-col for Challenges */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    /* ═══════════════════════════════════════════
+       MOBILE BOTTOM NAV
+    ═══════════════════════════════════════════ */
+    .mobile-bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-subtle);
+      padding: 4px 0 env(safe-area-inset-bottom, 4px);
+      justify-content: space-around;
+      align-items: center;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .mobile-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      padding: 4px 8px;
+      font-size: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.15s;
+      border: none;
+      background: none;
+    }
+    .mobile-nav-item .nav-icon {
+      font-size: 20px;
+    }
+    .mobile-nav-item.on {
+      color: var(--map-blue);
+    }
+    .mobile-nav-item .nav-label {
+      font-size: 8px;
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+    @media (max-width: 820px) {
+      .resource-split {
+        grid-template-columns: 1fr;
+      }
+      .story-shell {
+        grid-template-columns: 1fr;
+      }
+      .story-list {
+        display: none;
+      }
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+      .icon-content-grid {
+        grid-template-columns: 1fr;
+      }
+      .resource-links {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .trade-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+      .legacy-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+      .leader-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none !important;
+      }
+      .main {
+        margin-left: 0 !important;
+        padding-bottom: 60px;
+      }
+      .mobile-bottom-nav {
+        display: flex !important;
+      }
+      .l-nav-links .l-nav-link {
+        display: none !important;
+      }
+      .l-nav-links .btn-primary {
+        padding: 6px 14px !important;
+        font-size: 11px !important;
+      }
+      .l-hero {
+        padding: 80px 16px 40px;
+      }
+      .l-preview .preview-content {
+        height: 160px;
+      }
+      .prev-sb {
+        width: 80px;
+        padding: 6px 4px;
+      }
+      .prev-sb-item {
+        font-size: 8px;
+        padding: 3px 4px;
+      }
+      .map-shell {
+        flex-direction: column;
+        height: auto;
+      }
+      .map-left {
+        width: 100%;
+        max-height: 200px;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .map-canvas {
+        height: 60vh;
+        min-height: 340px;
+      }
+      .map-hud {
+        top: 8px;
+        left: 8px;
+      }
+      .map-legend {
+        top: 8px;
+        right: 8px;
+        padding: 6px 8px;
+      }
+      .zoom-ctrl {
+        right: 8px;
+        bottom: 60px;
+      }
+      .resource-wrap {
+        padding: 14px 12px;
+      }
+      .res-detail-header {
+        padding: 12px 14px;
+      }
+      .icon-grid {
+        padding: 10px 12px;
+        gap: 6px;
+      }
+      .icon-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 15px;
+        border-radius: 10px;
+      }
+      .icon-content {
+        padding: 12px;
+      }
+      .story-detail-header {
+        padding: 12px 14px;
+      }
+      .story-section {
+        padding: 12px 14px;
+      }
+      .profile-hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 16px;
+      }
+      .profile-rank {
+        flex-direction: column;
+        align-items: center;
+      }
+      .profile-sub-nav {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .l-h1 {
+        font-size: 28px;
+      }
+      .l-ctas .btn-primary,
+      .l-ctas .btn-outline {
+        font-size: 13px !important;
+        padding: 12px 20px !important;
+      }
+      .l-stats {
+        flex-wrap: wrap;
+      }
+      .l-stat {
+        flex: 1 1 50%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 14px 8px;
+      }
+      .l-stat:last-child {
+        border-bottom: none;
+      }
+      .l-steps {
+        grid-template-columns: 1fr 1fr;
+      }
+      .l-step {
+        padding: 14px;
+      }
+      .map-canvas {
+        height: 50vh;
+        min-height: 280px;
+      }
+      .hud-box {
+        padding: 4px 8px;
+      }
+      .hud-title {
+        font-size: 10px;
+      }
+      .hud-sub {
+        font-size: 8px;
+      }
+      .icon-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .badge-grid {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      }
+      .badge-ico-box {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+      }
+      .leader-grid {
+        grid-template-columns: 1fr;
+      }
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ═══════════════════════════════════════════
+       UTILITY
+    ═══════════════════════════════════════════ */
+    .text-accent {
+      color: var(--map-blue);
+    }
+    .text-gold {
+      color: var(--accent-gold);
+    }
+    .text-muted {
+      color: var(--text-muted);
+    }
+    .mb-1 {
+      margin-bottom: 8px;
+    }
+    .mb-2 {
+      margin-bottom: 16px;
+    }
+    .gap-1 {
+      gap: 6px;
+    }
+    .flex {
+      display: flex;
+    }
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
+    .items-center {
+      align-items: center;
+    }
+    .justify-between {
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+  SCREEN 1: LANDING PAGE
+  ══════════════════════════════════════ -->
+  <div id="landing" class="screen active">
+
+    <nav class="l-nav">
+      <div class="l-nav-logo"><span class="hex">⬡</span> <span class="sb-logo-text">TribalHive</span></div>
+      <div class="l-nav-links">
+        <span class="l-nav-link visible">About</span>
+        <span class="l-nav-link visible">Community Map</span>
+        <span class="l-nav-link visible">For Government</span>
+        <button class="btn-primary" style="padding:8px 18px;font-size:12px;" onclick="showOnboarding()">Get Early Access</button>
+      </div>
+    </nav>
+
+    <section class="l-hero">
+      <div class="l-hero-bg"></div>
+      <div class="l-hero-grid"></div>
+      <div class="l-eyebrow"><span class="eyebrow-line"></span>Community Intelligence Platform · South Africa<span class="eyebrow-line"></span></div>
+      <h1 class="l-h1">Tribal Data Drives<br><span class="accent">Smart Development</span></h1>
+      <div class="l-tribes">All tribes matter. Every talent counts. Every voice shapes the future.</div>
+      <p class="l-sub">Infrastructure built without knowing the people it serves will always fail them. TribalHive connects African clan roots, regional talent, and community voices to the decisions that shape our land.</p>
+      <div class="l-ctas">
+        <button class="btn-primary" style="font-size:14px;padding:14px 28px;" onclick="showOnboarding()">Help us learn about you →</button>
+        <button class="btn-outline" style="font-size:14px;padding:14px 28px;" onclick="showApp('map')">See the Community Map</button>
+      </div>
+
+      <div class="l-preview">
+        <div class="preview-bar">
+          <div class="pb-dot" style="background:#ff6058"></div>
+          <div class="pb-dot" style="background:#ffbd2e"></div>
+          <div class="pb-dot" style="background:#28ca41"></div>
+          <span class="pb-url">tribalhive.co.za — Community Map · KwaZulu-Natal</span>
+        </div>
+        <div class="preview-content">
+          <div class="prev-sb">
+            <div class="prev-sb-logo">⬡ TribalHive</div>
+            <div class="prev-sb-item">🏠 Home</div>
+            <div class="prev-sb-item on">🗺️ Community Map</div>
+            <div class="prev-sb-item">🧭 Resource Explorer</div>
+            <div class="prev-sb-item">📖 Project Story</div>
+            <div class="prev-sb-item">👤 Profile</div>
+          </div>
+          <div class="prev-map">
+            <svg width="100%" height="100%" viewBox="0 0 630 260" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <filter id="glow-preview"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              </defs>
+              <path d="M80,38 L155,18 L265,10 L375,24 L468,52 L530,100 L555,160 L540,218 L478,248 L368,258 L258,252 L170,216 L108,168 L78,118 Z" fill="rgba(0,180,255,0.04)" stroke="rgba(0,180,255,0.12)" stroke-width="1.5"/>
+              <g stroke="rgba(0,180,255,0.06)" stroke-width="0.8" fill="none">
+                <line x1="265" y1="10" x2="248" y2="140"/><line x1="375" y1="24" x2="352" y2="178"/>
+                <line x1="468" y1="52" x2="428" y2="198"/><line x1="248" y1="140" x2="428" y2="178"/>
+              </g>
+              <g font-size="8" fill="rgba(0,180,255,0.25)" font-weight="600">
+                <text x="148" y="125">uThukela</text><text x="258" y="105">Zululand</text>
+                <text x="372" y="85">uMkhanyakude</text><text x="435" y="145">King Cetshwayo</text>
+                <text x="195" y="175">uMgungundlovu</text><text x="385" y="195">eThekwini</text>
+                <text x="365" y="228">Ugu</text>
+              </g>
+              <circle cx="265" cy="128" r="20" fill="rgba(0,180,255,0.9)" filter="url(#glow-preview)"/>
+              <text x="265" y="132" text-anchor="middle" font-size="9" fill="#060e0a" font-weight="800">22%</text>
+              <text x="265" y="155" text-anchor="middle" font-size="8" fill="rgba(0,180,255,0.7)" font-weight="600">Nongoma</text>
+              <circle cx="405" cy="188" r="28" fill="rgba(0,180,255,1)" filter="url(#glow-preview)"/>
+              <text x="405" y="192" text-anchor="middle" font-size="10" fill="#060e0a" font-weight="800">31%</text>
+              <text x="405" y="224" text-anchor="middle" font-size="8" fill="rgba(0,180,255,0.7)" font-weight="600">Durban</text>
+              <circle cx="482" cy="155" r="16" fill="rgba(0,180,255,0.75)"/>
+              <text x="482" y="159" text-anchor="middle" font-size="8" fill="#060e0a" font-weight="800">18%</text>
+              <text x="482" y="178" text-anchor="middle" font-size="7" fill="rgba(0,180,255,0.6)">R. Bay</text>
+              <circle cx="178" cy="148" r="13" fill="rgba(0,180,255,0.6)"/>
+              <text x="178" y="152" text-anchor="middle" font-size="7" fill="#060e0a" font-weight="700">12%</text>
+              <circle cx="348" cy="120" r="15" fill="rgba(0,180,255,0.7)"/>
+              <text x="348" y="124" text-anchor="middle" font-size="8" fill="#060e0a" font-weight="700">19%</text>
+              <text x="348" y="143" text-anchor="middle" font-size="7" fill="rgba(0,180,255,0.6)">Ulundi</text>
+            </svg>
+            <div style="position:absolute;top:8px;right:8px;background:rgba(13,30,20,0.92);backdrop-filter:blur(12px);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;font-size:10px;box-shadow:var(--shadow-card);">
+              <div style="font-weight:700;color:var(--text-primary);">KwaZulu-Natal</div>
+              <div style="color:var(--map-blue);font-size:9px;">Sport & Athletics · 20%</div>
+            </div>
+            <div style="position:absolute;bottom:8px;left:8px;display:flex;gap:4px;flex-wrap:wrap;">
+              <span class="pill pill-dark" style="font-size:9px;padding:3px 8px;">⚽ Soccer 35%</span>
+              <span class="pill pill-blue" style="font-size:9px;padding:3px 8px;">Nxumalo 🔗 31%</span>
+              <span class="pill pill-gold" style="font-size:9px;padding:3px 8px;">Zulu 24%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div style="padding:0 16px 40px;">
+      <div class="l-stats">
+        <div class="l-stat"><div class="l-stat-n">9<b>+</b></div><div class="l-stat-l">Provinces mapped</div></div>
+        <div class="l-stat"><div class="l-stat-n">10<b>+</b></div><div class="l-stat-l">Industry categories</div></div>
+        <div class="l-stat"><div class="l-stat-n">∞</div><div class="l-stat-l">Clan connections</div></div>
+        <div class="l-stat"><div class="l-stat-n">1<b>st</b></div><div class="l-stat-l">Platform of its kind</div></div>
+      </div>
+    </div>
+
+    <div class="l-mission">
+      <div class="l-mission-q">"Development that ignores the <em>soil</em>, the <em>people</em>, and the <em>voices</em> — will always build the wrong thing."</div>
+      <div class="l-mission-s">TribalHive exists to change that.</div>
+    </div>
+
+    <div class="l-hiw">
+      <div class="section-label" style="text-align:center;margin-bottom:8px;">How it works</div>
+      <h2 style="text-align:center;font-size:clamp(20px,3vw,32px);font-weight:800;letter-spacing:-.02em;margin-bottom:30px;color:var(--text-primary);">From your roots to smarter development</h2>
+      <div class="l-steps">
+        <div class="l-step"><div class="l-step-n">STEP 01</div><div class="l-step-ico">🎙️</div><div class="l-step-t">Hive AI learns about you</div><div class="l-step-b">Conversational questions in your home language. Your clan, area, and talents mapped — no boring forms.</div></div>
+        <div class="l-step"><div class="l-step-n">STEP 02</div><div class="l-step-ico">🗺️</div><div class="l-step-t">Your talent goes on the map</div><div class="l-step-b">Your skills and heritage appear as a live node on the Community Map showing where your talent cluster lives.</div></div>
+        <div class="l-step"><div class="l-step-n">STEP 03</div><div class="l-step-ico">🔗</div><div class="l-step-t">Discover your clan network</div><div class="l-step-b">Drill from category → subcategory → clan surname. See who shares your lineage and what they produce.</div></div>
+        <div class="l-step"><div class="l-step-n">STEP 04</div><div class="l-step-ico">🏗️</div><div class="l-step-t">Shape real development</div><div class="l-step-b">Municipalities use the aggregated data to build infrastructure that matches what communities produce and need.</div></div>
+      </div>
+    </div>
+
+    <footer class="l-footer">
+      <div class="l-footer-logo">⬡ TribalHive</div>
+      <div class="l-footer-tag">Tribal Data Drives Smart Development</div>
+      <div style="font-size:9px;color:var(--text-muted);">KwaZulu-Natal · South Africa</div>
+    </footer>
+  </div>
+
+  <!-- ══════════════════════════════════════
+  SCREEN 2: HIVE AI ONBOARDING
+  ══════════════════════════════════════ -->
+  <div id="onboarding" class="screen">
+    <div class="ob-wrap">
+      <div class="ob-logo">⬡ TribalHive</div>
+      <div class="ob-prog-wrap">
+        <div class="ob-prog-label"><span id="ob-step-label">Step 1 of 4 — Identity</span><span id="ob-pct-label">0%</span></div>
+        <div class="prog-track"><div class="prog-fill-blue" id="ob-prog-bar" style="width:0%"></div></div>
+      </div>
+      <div class="ob-chat" id="ob-chat"></div>
+      <div id="ob-input-wrap">
+        <div class="ob-input-row">
+          <input class="ob-input" id="ob-input" placeholder="Type your answer..." onkeydown="if(event.key==='Enter')sendOb()" />
+          <button class="ob-send" onclick="sendOb()">→</button>
+        </div>
+      </div>
+      <div id="ob-complete" style="display:none;" class="ob-complete">
+        <div class="ob-complete-ico">⬡</div>
+        <div class="ob-complete-h">You're in the Hive</div>
+        <div class="ob-complete-clan" id="ob-clan-greeting">Sawubona, Simangele Nxumalo</div>
+        <div class="ob-complete-sub">Ndwandwe · Nongoma · Technology & UI/UX</div>
+        <div class="ob-cip-card">
+          <div class="ob-cip-lbl">🌱 Starting Community Impact Points</div>
+          <div class="ob-cip-n">+100</div>
+          <div class="ob-cip-s">Earned for completing your profile</div>
+        </div>
+        <div style="background:rgba(0,180,255,0.04);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:20px;">🌍</span>
+          <div><div style="font-size:12px;font-weight:700;color:var(--text-primary);">Explorer — Level 1</div><div style="font-size:10px;color:var(--text-muted);">Your journey begins now</div></div>
+        </div>
+        <button class="btn-primary" style="width:100%;font-size:14px;padding:14px;" onclick="showApp('home')">Explore KZN →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+  SCREEN 3: MAIN APP
+  ══════════════════════════════════════ -->
+  <div id="app" class="screen">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sb-logo">
+        <span style="font-size:18px;">⬡</span>
+        <div><span class="sb-logo-text">TribalHive</span><span class="sb-logo-sub">Community Intelligence</span></div>
+      </div>
+      <nav class="sb-nav">
+        <div class="sb-item on" id="nav-home" onclick="showTab('home')"><span class="ico">🏠</span><span>Home</span></div>
+        <div class="sb-item" id="nav-map" onclick="showTab('map')"><span class="ico">🗺️</span><span>Community Map</span></div>
+        <div class="sb-item" id="nav-resources" onclick="showTab('resources')"><span class="ico">🧭</span><span>Resource Explorer</span></div>
+        <div class="sb-item" id="nav-story" onclick="showTab('story')"><span class="ico">📖</span><span>Project Story</span></div>
+        <div class="sb-item" id="nav-profile" onclick="showTab('profile')"><span class="ico">👤</span><span>Profile</span></div>
+      </nav>
+      <div class="sb-profile">
+        <div class="sb-profile-name">Simangele Nxumalo</div>
+        <div class="sb-profile-clan">Ndwandwe · Nongoma · 🌍 Lv.3</div>
+        <div style="margin-top:6px;">
+          <div class="prog-track"><div class="prog-fill-blue" style="width:75%"></div></div>
+          <div style="font-size:9px;color:var(--map-blue);margin-top:2px;">750 / 1000 CIP</div>
+        </div>
+      </div>
+      <div class="sb-tagline">Tribal Data Drives Smart Development</div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+      <div class="topbar">
+        <span class="tb-tag">Tribal Data Drives Smart Development</span>
+        <div class="tb-right">
+          <div class="cip-badge">🌱 750 CIP</div>
+          <div class="tb-profile" onclick="showTab('profile')">
+            <div class="tb-avatar">SN</div>
+            <span class="tb-name">Simangele Nxumalo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-content">
+
+        <!-- ── HOME TAB ── -->
+        <div class="tab active" id="tab-home">
+          <div class="home-wrap">
+            <div class="home-greeting">Good morning, Simangele 👋</div>
+            <div class="home-sub">Your Nxumalo lineage is connected to 6 talent nodes across KZN.</div>
+
+            <!-- ── HOME CHALLENGE CARD (NEW) ── -->
+            <div class="home-challenge-card" onclick="showTab('profile'); switchProfileTab('challenges')">
+              <div class="home-challenge-header">
+                <span class="home-challenge-label">🔥 Current Challenge</span>
+                <span class="home-challenge-reward">+150 CIP</span>
+              </div>
+              <div class="home-challenge-title">🌱 Document 3 indigenous plants in your area</div>
+              <div class="home-challenge-progress">
+                <div class="prog-track"><div class="prog-fill-gold" style="width:66%"></div></div>
+                <span class="home-challenge-count">2 / 3</span>
+              </div>
+              <div class="home-challenge-action">Tap to continue → <span>View all challenges</span></div>
+            </div>
+
+            <div class="home-chat" id="home-chat">
+              <div class="ai-bubble"><div class="ai-lbl">⬡ Hive AI</div><div class="ai-txt">Your profile is complete, Simangele. Your talent is now mapped to <strong>Nongoma</strong> and <strong>Durban</strong> nodes on the Community Map.<br><br>What would you like to explore today?</div></div>
+            </div>
+            <div class="home-suggestions">
+              <button class="pill pill-blue" onclick="homeAsk('Show my Nxumalo clan on the map')">Show my clan on the map 🔗</button>
+              <button class="pill pill-outline" onclick="homeAsk('What is KZN producing most?')">What is KZN producing most?</button>
+              <button class="pill pill-outline" onclick="homeAsk('Find engineering talent near Nongoma')">Engineering talent near Nongoma</button>
+              <button class="pill pill-outline" onclick="homeAsk('New project stories in KZN')">New projects in KZN</button>
+            </div>
+            <div class="home-input-row">
+              <input class="home-input" id="home-input" placeholder="Ask Hive AI anything about talent or development in KZN..." onkeydown="if(event.key==='Enter')sendHome()" />
+              <button class="home-send" onclick="sendHome()">→</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── MAP TAB ── -->
+        <div class="tab" id="tab-map">
+          <!-- Map content preserved exactly as in your working code -->
+          <div class="map-shell">
+            <div class="map-left">
+              <div class="map-left-header">
+                <div class="map-left-title">KwaZulu-Natal</div>
+                <div class="map-left-sub">Select category → subcategory → clan</div>
+              </div>
+              <div style="padding:6px 0;" id="cat-list"></div>
+              <div class="clan-list-wrap" id="clan-list-wrap" style="display:none;">
+                <div class="clan-section-title">Clan surnames — <span id="clan-section-cat"></span></div>
+                <div id="clan-list"></div>
+              </div>
+            </div>
+            <div class="map-canvas" id="map-canvas">
+              <div class="map-hud">
+                <div class="hud-box">
+                  <div class="hud-title" id="hud-title">KwaZulu-Natal Community Map</div>
+                  <div class="hud-sub" id="hud-sub">Select a category to explore talent nodes</div>
+                </div>
+                <div class="hud-clan" id="hud-clan">
+                  <div class="hud-clan-l">Your clan connected to</div>
+                  <div class="hud-clan-v" id="hud-clan-v">—</div>
+                </div>
+              </div>
+              <div class="map-legend">
+                <div class="legend-title">Node = talent %</div>
+                <div class="legend-row"><div class="legend-circle" style="width:18px;height:18px;background:var(--map-node-high);box-shadow:0 0 12px var(--map-blue-glow);"></div>High concentration</div>
+                <div class="legend-row"><div class="legend-circle" style="width:12px;height:12px;background:var(--map-node-med);"></div>Medium</div>
+                <div class="legend-row"><div class="legend-circle" style="width:8px;height:8px;background:var(--map-node-low);"></div>Low</div>
+                <div class="legend-row" id="leg-clan-row" style="display:none;"><div class="legend-circle" style="width:12px;height:12px;background:var(--map-clan-gold);box-shadow:0 0 0 3px rgba(255,184,0,0.3);"></div>Your clan</div>
+              </div>
+              <svg id="kzn-svg" width="100%" height="100%" viewBox="0 0 820 680" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;">
+                <defs>
+                  <filter id="glow-sm"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <filter id="glow-lg"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <filter id="glow-gold"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                </defs>
+                <rect width="820" height="680" fill="var(--bg-deep)"/>
+                <g stroke="rgba(0,180,255,0.03)" stroke-width="0.5">
+                  <line x1="0" y1="100" x2="820" y2="100"/><line x1="0" y1="200" x2="820" y2="200"/>
+                  <line x1="0" y1="300" x2="820" y2="300"/><line x1="0" y1="400" x2="820" y2="400"/>
+                  <line x1="0" y1="500" x2="820" y2="500"/><line x1="0" y1="600" x2="820" y2="600"/>
+                  <line x1="100" y1="0" x2="100" y2="680"/><line x1="200" y1="0" x2="200" y2="680"/>
+                  <line x1="300" y1="0" x2="300" y2="680"/><line x1="400" y1="0" x2="400" y2="680"/>
+                  <line x1="500" y1="0" x2="500" y2="680"/><line x1="600" y1="0" x2="600" y2="680"/>
+                  <line x1="700" y1="0" x2="700" y2="680"/>
+                </g>
+                <path d="M100,82 L178,44 L292,26 L416,40 L526,70 L617,124 L670,194 L702,284 L685,382 L630,460 L544,532 L434,574 L322,584 L212,547 L140,474 L96,390 L78,290 L88,190 Z" fill="rgba(0,180,255,0.03)" stroke="rgba(0,180,255,0.12)" stroke-width="1.5"/>
+                <g stroke="rgba(0,180,255,0.05)" stroke-width="0.8" fill="none">
+                  <path d="M292,26 L270,202"/><path d="M416,40 L390,250"/><path d="M526,70 L470,300"/>
+                  <path d="M270,202 L140,295"/><path d="M270,202 L390,250"/><path d="M390,250 L470,300"/>
+                  <path d="M390,250 L347,410"/><path d="M347,410 L230,460"/><path d="M347,410 L444,482"/>
+                </g>
+                <g font-size="9" fill="rgba(0,180,255,0.2)" font-weight="600">
+                  <text x="148" y="200">uThukela</text><text x="270" y="148">Zululand</text>
+                  <text x="388" y="112">uMkhanyakude</text><text x="475" y="220">King Cetshwayo</text>
+                  <text x="140" y="315">uMzinyathi</text><text x="270" y="325">iLembe</text>
+                  <text x="192" y="412">uMgungundlovu</text><text x="448" y="392">eThekwini</text>
+                  <text x="452" y="462">Harry Gwala</text><text x="342" y="500">Ugu</text>
+                </g>
+                <g id="map-pulse"></g>
+                <g id="map-halos"></g>
+                <g id="map-nodes"></g>
+                <g id="map-labels"></g>
+              </svg>
+              <div class="node-tooltip" id="node-tooltip">
+                <div class="nt-district" id="nt-district"></div>
+                <div class="nt-city" id="nt-city"></div>
+                <div class="nt-pct" id="nt-pct"></div>
+                <div class="nt-row"><span>Talent index</span><span class="nt-val" id="nt-count"></span></div>
+                <div class="nt-row"><span>Dominant clan</span><span class="nt-val" id="nt-dclan"></span></div>
+                <div class="nt-mine" id="nt-mine">🔗 Your clan is connected here</div>
+                <div class="nt-hint">Tap node to see all clan surnames →</div>
+              </div>
+              <div class="map-clan-sheet" id="map-clan-sheet">
+                <span class="mcs-close" onclick="document.getElementById('map-clan-sheet').classList.remove('show')">✕</span>
+                <div class="mcs-label" id="mcs-label"></div>
+                <div class="mcs-title" id="mcs-title"></div>
+                <div class="mcs-chips" id="mcs-chips"></div>
+                <div class="mcs-note">🔗 = your Nxumalo / Ndwandwe lineage is connected to this talent cluster</div>
+              </div>
+              <div class="zoom-ctrl">
+                <button class="z-btn" onclick="mapZoom(1.3)">+</button>
+                <button class="z-btn" onclick="mapZoom(.75)">−</button>
+                <button class="z-btn" style="font-size:12px;" onclick="mapReset()">⌂</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── RESOURCE EXPLORER TAB ── (preserved) -->
+        <div class="tab" id="tab-resources">
+          <div class="resource-wrap">
+            <div class="resource-header">
+              <div>
+                <h1 class="resource-h">🧭 Resource Explorer</h1>
+                <p class="resource-sub">KwaZulu-Natal · God-given resources every citizen should know · 2 of 8 explored</p>
+              </div>
+              <div class="cip-badge" style="font-size:12px;">🌍 Explorer Lv.3 · 750 CIP</div>
+            </div>
+            <div class="card card-gold" style="margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;font-weight:700;color:var(--accent-gold);">🌍 Journey Progress</span>
+                <span style="font-size:11px;color:var(--accent-gold);font-weight:700;">750 CIP · 250 to Contributor rank</span>
+              </div>
+              <div class="prog-track"><div class="prog-fill-gold" style="width:75%"></div></div>
+            </div>
+            <div class="province-filter">
+              <button class="pill pill-dark">KwaZulu-Natal ✓</button>
+              <button class="pill pill-outline">Gauteng</button>
+              <button class="pill pill-outline">Limpopo</button>
+              <button class="pill pill-outline">Western Cape</button>
+              <button class="pill pill-outline">Eastern Cape</button>
+            </div>
+            <div class="resource-split">
+              <div class="resource-map">
+                <svg width="100%" height="100%" viewBox="0 0 500 240" preserveAspectRatio="xMidYMid meet">
+                  <path d="M60,32 L130,12 L230,6 L330,18 L418,42 L472,82 L492,134 L478,188 L418,222 L318,234 L208,228 L132,196 L78,154 L54,106 Z" fill="rgba(0,180,255,0.03)" stroke="rgba(0,180,255,0.12)" stroke-width="1"/>
+                  <g font-size="18">
+                    <text x="320" y="88">🌾</text><text x="290" y="115">🌾</text>
+                    <text x="345" y="145">⚓</text>
+                    <text x="148" y="108">⚫</text>
+                    <text x="295" y="68">🥑</text>
+                    <text x="238" y="58">🌲</text>
+                    <text x="355" y="195">🐟</text>
+                    <text x="428" y="128">🏭</text>
+                  </g>
+                  <g font-size="8" fill="rgba(0,180,255,0.6)" font-weight="600">
+                    <text x="312" y="112">Sugarcane</text>
+                    <text x="338" y="162">Port Durban</text>
+                    <text x="136" y="122">Coal</text>
+                    <text x="287" y="82">Avocados</text>
+                    <text x="228" y="72">Timber</text>
+                    <text x="348" y="210">Fishing</text>
+                    <text x="415" y="142">Richards Bay</text>
+                  </g>
+                </svg>
+                <div style="position:absolute;bottom:8px;left:10px;font-size:10px;color:var(--map-blue);font-weight:600;">↑ Tap any pin to explore</div>
+              </div>
+              <div class="resource-list">
+                <div class="res-row active" onclick="openResource('sugarcane')">
+                  <div class="res-row-ico">🌾</div>
+                  <div class="res-row-info">
+                    <div class="res-row-name">Sugarcane</div>
+                    <div class="res-row-sub">South Coast · North Coast</div>
+                    <div style="display:flex;align-items:center;gap:4px;margin-top:3px;">
+                      <div class="prog-track" style="flex:1;height:3px;"><div class="prog-fill-blue" style="width:57%"></div></div>
+                      <span style="font-size:9px;font-weight:700;color:var(--map-blue);">4/7</span>
+                    </div>
+                  </div>
+                  <div class="res-row-pct">34%</div>
+                </div>
+                <div class="res-row" onclick="openResource('port')">
+                  <div class="res-row-ico">⚓</div>
+                  <div class="res-row-info"><div class="res-row-name">Port of Durban</div><div class="res-row-sub">eThekwini · Maritime hub</div></div>
+                  <div class="res-row-pct" style="color:var(--accent-gold);">28%</div>
+                </div>
+                <div class="res-row" style="opacity:.5;" onclick="openResource('coal')">
+                  <div class="res-row-ico">⚫</div>
+                  <div class="res-row-info"><div class="res-row-name">Coal</div><div class="res-row-sub">Newcastle · uThukela</div></div>
+                  <div class="res-row-lock">🔒</div>
+                </div>
+                <div class="res-row" style="opacity:.4;">
+                  <div class="res-row-ico">🌲</div>
+                  <div class="res-row-info"><div class="res-row-name">Timber</div><div class="res-row-sub">Zululand · Locked</div></div>
+                  <div class="res-row-lock">🔒</div>
+                </div>
+                <div class="res-row" style="opacity:.35;">
+                  <div class="res-row-ico">🥑</div>
+                  <div class="res-row-info"><div class="res-row-name">Avocados</div><div class="res-row-sub">Nongoma · Locked</div></div>
+                  <div class="res-row-lock">🔒</div>
+                </div>
+              </div>
+            </div>
+            <div class="res-detail" id="res-detail">
+              <!-- Resource detail preserved -->
+              <div class="res-detail-header">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+                  <div>
+                    <div class="res-detail-name">🌾 Sugarcane</div>
+                    <div class="res-detail-meta">KwaZulu-Natal · Agriculture · 34% of KZN's agricultural economy</div>
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;">
+                      <span class="pill pill-blue" style="font-size:10px;">South Coast</span>
+                      <span class="pill pill-blue" style="font-size:10px;">North Coast</span>
+                      <span class="pill pill-blue" style="font-size:10px;">Zululand</span>
+                      <span class="pill pill-blue" style="font-size:10px;">Since 1848</span>
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div class="res-detail-prog">
+                      <span class="res-detail-prog-label">4 / 7 icons explored</span>
+                      <span class="res-detail-cip">200 / 350 CIP</span>
+                    </div>
+                    <div class="prog-track" style="width:160px;"><div class="prog-fill-blue" style="width:57%"></div></div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Complete all 7 → 🏅 Sugarcane Scholar</div>
+                  </div>
+                </div>
+              </div>
+              <div class="icon-grid">
+                <div class="icon-btn" onclick="showIconContent('map-ic')">
+                  <div class="icon-circle done">📍<div class="icon-check">✓</div></div>
+                  <div class="icon-label done">Map</div>
+                </div>
+                <div class="icon-btn" onclick="showIconContent('history-ic')">
+                  <div class="icon-circle done">🕐<div class="icon-check">✓</div></div>
+                  <div class="icon-label done">History</div>
+                </div>
+                <div class="icon-btn" onclick="showIconContent('people-ic')">
+                  <div class="icon-circle done">👥<div class="icon-check">✓</div></div>
+                  <div class="icon-label done">People</div>
+                </div>
+                <div class="icon-btn" onclick="showIconContent('trade-ic')">
+                  <div class="icon-circle done">🚢<div class="icon-check">✓</div></div>
+                  <div class="icon-label done">Trade</div>
+                </div>
+                <div class="icon-btn" onclick="showIconContent('events-ic')">
+                  <div class="icon-circle next">🏛️</div>
+                  <div class="icon-label next">Events ← Next</div>
+                </div>
+                <div class="icon-btn">
+                  <div class="icon-circle locked">🏗️</div>
+                  <div class="icon-label">Projects</div>
+                </div>
+                <div class="icon-btn">
+                  <div class="icon-circle locked">💡</div>
+                  <div class="icon-label">Insights</div>
+                </div>
+              </div>
+              <div class="icon-content" id="icon-content-area">
+                <div id="trade-ic">
+                  <div class="icon-content-title">🚢 Trade & Economy — How Sugarcane Moves from KZN to the World</div>
+                  <div class="trade-route">
+                    <div class="trade-line"></div>
+                    <div class="trade-stops">
+                      <div class="trade-stop"><div class="trade-stop-ico">🌾</div><div class="trade-stop-lbl">KZN Farms</div></div>
+                      <div class="trade-stop"><div class="trade-stop-ico">🏭</div><div class="trade-stop-lbl">Mill</div></div>
+                      <div class="trade-stop"><div class="trade-stop-ico">⚓</div><div class="trade-stop-lbl">Durban Port</div></div>
+                      <div class="trade-stop"><div class="trade-stop-ico">🚢</div><div class="trade-stop-lbl">Export</div></div>
+                      <div class="trade-stop"><div class="trade-stop-ico">🌏</div><div class="trade-stop-lbl">World</div></div>
+                    </div>
+                    <div class="trade-dot"></div>
+                  </div>
+                  <div class="trade-stats">
+                    <div class="trade-stat"><div class="trade-stat-n">R14bn</div><div class="trade-stat-l">Annual industry value</div></div>
+                    <div class="trade-stat"><div class="trade-stat-n">85k</div><div class="trade-stat-l">Direct jobs in KZN</div></div>
+                    <div class="trade-stat"><div class="trade-stat-n gold">60%</div><div class="trade-stat-l">SA sugar exports via Durban</div></div>
+                    <div class="trade-stat"><div class="trade-stat-n gold" style="font-size:13px;">Japan 🇯🇵</div><div class="trade-stat-l">Top export destination</div></div>
+                  </div>
+                  <div class="card card-blue" style="margin-top:12px;">
+                    <div style="font-size:10px;font-weight:700;color:var(--map-blue);margin-bottom:4px;">💡 Think about this</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">Durban Port handles 60% of SA's sugar exports — yet most families in Nkandla who grow the cane have never seen those international profits. Why does this gap exist, and how can development fix it?</div>
+                  </div>
+                  <div class="cip-claim">
+                    <div class="cip-claim-left"><div class="cip-claim-h">🏅 Section complete!</div><div class="cip-claim-s">Trade & Economy · Sugarcane</div></div>
+                    <button class="cip-claim-btn">Claim +50 CIP</button>
+                  </div>
+                </div>
+                <div id="map-ic" style="display:none;">
+                  <div class="icon-content-title">📍 Geography — Where does Sugarcane grow in KZN?</div>
+                  <div class="icon-content-grid">
+                    <div class="icon-map">
+                      <svg width="100%" height="100%" viewBox="0 0 300 160">
+                        <path d="M40,20 L90,8 L160,4 L220,12 L268,32 L290,60 L282,106 L250,130 L190,140 L120,136 L70,112 L38,80 Z" fill="rgba(0,180,255,0.03)" stroke="rgba(0,180,255,0.1)" stroke-width="1"/>
+                        <g font-size="14"><text x="190" y="46">🌾</text><text x="210" y="68">🌾</text><text x="198" y="88">🌾</text><text x="178" y="108">🌾</text><text x="155" y="58">🌾</text><text x="138" y="44">🌾</text></g>
+                        <text x="180" y="30" font-size="8" fill="rgba(0,180,255,0.6)" font-weight="700">North Coast</text>
+                        <text x="162" y="122" font-size="8" fill="rgba(0,180,255,0.6)" font-weight="700">South Coast</text>
+                        <text x="90" y="65" font-size="8" fill="rgba(0,180,255,0.6)" font-weight="700">Zululand</text>
+                      </svg>
+                    </div>
+                    <div class="icon-facts">
+                      <div class="fact-block">
+                        <div class="fact-title">📍 Key Growing Regions</div>
+                        <div class="fact-body">• <strong>North Coast</strong> — Stanger (KwaDukuza), Tongaat, iLembe<br>• <strong>South Coast</strong> — Ugu District, Port Shepstone<br>• <strong>Zululand</strong> — Pongola, Nkwalini Valley<br><br>Total: ~360 000 hectares under cultivation.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cip-claim"><div class="cip-claim-left"><div class="cip-claim-h">📍 Geography explored</div><div class="cip-claim-s">Already earned +50 CIP</div></div><button class="cip-claim-btn" style="opacity:.6;">Claimed ✓</button></div>
+                </div>
+                <div id="history-ic" style="display:none;">
+                  <div class="icon-content-title">🕐 History — Sugarcane's Timeline in KZN</div>
+                  <div class="tl-view">
+                    <div class="tl-item"><div class="tl-dot-w"></div><div><div class="tl-era">1848</div><div class="tl-name">First planting</div><div class="tl-body">Sugarcane first planted in Natal by British settlers. The crop transforms the coastal landscape forever.</div></div></div>
+                    <div class="tl-item"><div class="tl-dot-w"></div><div><div class="tl-era">1860</div><div class="tl-name">Indentured labour begins</div><div class="tl-body">First Indian indentured labourers arrive at Port of Durban — 342 men, women and children.</div></div></div>
+                    <div class="tl-item"><div class="tl-dot-w"></div><div><div class="tl-era">1913</div><div class="tl-name">Natives Land Act</div><div class="tl-body">Zulu families displaced from farming land. Sugarcane profits flow outward while communities lose their soil.</div></div></div>
+                    <div class="tl-item"><div class="tl-dot-w future"></div><div><div class="tl-era">Today</div><div class="tl-name">R14bn industry</div><div class="tl-body">85 000 direct jobs. Still KZN's dominant agricultural export. Community ownership remains minimal.</div></div></div>
+                  </div>
+                  <div class="cip-claim"><div class="cip-claim-left"><div class="cip-claim-h">🕐 History explored</div><div class="cip-claim-s">Already earned +50 CIP</div></div><button class="cip-claim-btn" style="opacity:.6;">Claimed ✓</button></div>
+                </div>
+                <div id="people-ic" style="display:none;">
+                  <div class="icon-content-title">👥 People — Communities Tied to Sugarcane</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+                    <div class="card card-blue"><div style="font-size:20px;margin-bottom:4px;">🇮🇳</div><div style="font-size:11px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Indentured Indian families</div><div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">Arrived 1860–1911. Many stayed and permanently shaped Durban's identity.</div></div>
+                    <div class="card card-blue"><div style="font-size:20px;margin-bottom:4px;">👑</div><div style="font-size:11px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Zulu farming clans</div><div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">Mkhize, Ntuli, Nxumalo — displaced but resilient. Some became smallholder farmers.</div></div>
+                    <div class="card card-blue"><div style="font-size:20px;margin-bottom:4px;">🏭</div><div style="font-size:11px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Mill workers</div><div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">40+ mills across KZN. Tongaat Hulett, Illovo — employing thousands year-round.</div></div>
+                  </div>
+                  <div class="cip-claim"><div class="cip-claim-left"><div class="cip-claim-h">👥 People explored</div><div class="cip-claim-s">Already earned +50 CIP</div></div><button class="cip-claim-btn" style="opacity:.6;">Claimed ✓</button></div>
+                </div>
+                <div id="events-ic" style="display:none;">
+                  <div class="icon-content-title">🏛️ Historical Events — Land, Labour & Power</div>
+                  <div class="card card-gold" style="margin-bottom:12px;">
+                    <div style="font-size:10px;font-weight:700;color:var(--accent-gold);margin-bottom:4px;">⚠️ Development gap insight</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">The history of sugarcane in KZN is inseparable from the history of land dispossession and forced labour. Understanding this context is essential before any new agricultural development begins.</div>
+                  </div>
+                  <div class="tl-view">
+                    <div class="tl-item"><div class="tl-dot-w"></div><div><div class="tl-era">1913</div><div class="tl-name">Natives Land Act</div><div class="tl-body">Zulu families legally barred from owning land in 93% of South Africa. Forced into labour on their own ancestral soil.</div></div></div>
+                    <div class="tl-item"><div class="tl-dot-w"></div><div><div class="tl-era">1946</div><div class="tl-name">Indian Passive Resistance</div><div class="tl-body">KZN Indian community resists discriminatory land laws. Gandhi's early activism was rooted in these sugarcane-belt communities.</div></div></div>
+                    <div class="tl-item"><div class="tl-dot-w future"></div><div><div class="tl-era">Post-1994</div><div class="tl-name">Land reform — slow progress</div><div class="tl-body">Community land claims in sugarcane regions still unresolved. Youth agriculture initiatives emerging.</div></div></div>
+                  </div>
+                  <div class="cip-claim"><div class="cip-claim-left"><div class="cip-claim-h">🏅 Historical Events complete!</div><div class="cip-claim-s">Historical Events · Sugarcane</div></div><button class="cip-claim-btn" onclick="this.textContent='Claimed ✓';this.style.opacity='.6'">Claim +50 CIP</button></div>
+                </div>
+              </div>
+              <div class="hive-ai-bar">
+                <div class="hive-ai-label">⬡ Ask Hive AI about Sugarcane</div>
+                <div class="hive-ai-row">
+                  <input class="hive-ai-input" placeholder="Ask anything... e.g. 'How did sugarcane change the people of KZN?'" />
+                  <button class="hive-ai-btn">Ask</button>
+                </div>
+                <div class="hive-ai-chips">
+                  <button class="pill pill-outline" style="font-size:10px;">Who brought sugarcane to KZN?</button>
+                  <button class="pill pill-outline" style="font-size:10px;">What clans worked on these farms?</button>
+                  <button class="pill pill-outline" style="font-size:10px;">How much does KZN export today?</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PROJECT STORY TAB ── (fully preserved) -->
+        <div class="tab" id="tab-story">
+          <div class="story-shell">
+            <div class="story-list">
+              <div class="story-search">
+                <input class="story-search-input" placeholder="🔍 Search projects..." />
+              </div>
+              <div class="story-filters">
+                <button class="pill pill-dark" style="font-size:9px;">All</button>
+                <button class="pill pill-outline" style="font-size:9px;">Education</button>
+                <button class="pill pill-outline" style="font-size:9px;">Health</button>
+                <button class="pill pill-outline" style="font-size:9px;">Water</button>
+                <button class="pill pill-outline" style="font-size:9px;">Housing</button>
+              </div>
+              <div class="story-card active">
+                <div class="sc-badges"><span class="pill pill-green" style="font-size:8px;">Planning</span><span class="pill pill-gold" style="font-size:8px;">R350m</span></div>
+                <div class="sc-title">🏗️ Rural School Infrastructure</div>
+                <div class="sc-loc">📍 Nkandla, KwaZulu-Natal</div>
+                <div class="sc-stats">💬 42 voices · 🗳️ Poll open · +30 CIP</div>
+              </div>
+              <div class="story-card" onclick="this.classList.add('active');document.querySelectorAll('.story-card').forEach((el,i)=>{if(el!==this)el.classList.remove('active')})">
+                <div class="sc-badges"><span class="pill pill-outline" style="font-size:8px;background:rgba(0,180,255,0.08);color:var(--map-blue);border-color:rgba(0,180,255,0.15);">Active</span><span class="pill pill-outline" style="font-size:8px;">R120m</span></div>
+                <div class="sc-title">🏥 Nkandla District Clinic</div>
+                <div class="sc-loc">📍 Durban Metro, KZN</div>
+                <div class="sc-stats">💬 18 voices</div>
+              </div>
+              <div class="story-card" onclick="this.classList.add('active');document.querySelectorAll('.story-card').forEach((el,i)=>{if(el!==this)el.classList.remove('active')})">
+                <div class="sc-badges"><span class="pill pill-outline" style="font-size:8px;">Proposed</span><span class="pill pill-outline" style="font-size:8px;">R80m</span></div>
+                <div class="sc-title">💧 Clean Water Access</div>
+                <div class="sc-loc">📍 Richards Bay, KZN</div>
+                <div class="sc-stats">💬 7 voices · 🗳️ Vote now</div>
+              </div>
+              <div class="story-card" onclick="this.classList.add('active');document.querySelectorAll('.story-card').forEach((el,i)=>{if(el!==this)el.classList.remove('active')})">
+                <div class="sc-badges"><span class="pill pill-outline" style="font-size:8px;background:rgba(0,180,255,0.08);color:var(--map-blue);border-color:rgba(0,180,255,0.15);">Active</span><span class="pill pill-outline" style="font-size:8px;">R200m</span></div>
+                <div class="sc-title">🏘️ Youth Housing Initiative</div>
+                <div class="sc-loc">📍 Ladysmith, uThukela</div>
+                <div class="sc-stats">💬 31 voices</div>
+              </div>
+            </div>
+            <div class="story-detail">
+              <div class="story-detail-header">
+                <div class="sd-badges">
+                  <span class="pill pill-green">Planning</span>
+                  <span class="pill pill-gold">R350 Million</span>
+                  <span class="pill pill-outline">Education & Infrastructure</span>
+                </div>
+                <h2 class="sd-title">🏗️ Rural School Infrastructure Programme</h2>
+                <p class="sd-loc">📍 Nkandla District · KwaZulu-Natal · Auto-built by Hive AI</p>
+                <div class="sd-nav">
+                  <div class="sd-nav-tab on" onclick="showStorySection('overview',this)">🎯 Overview</div>
+                  <div class="sd-nav-tab" onclick="showStorySection('history',this)">🏛️ History</div>
+                  <div class="sd-nav-tab" onclick="showStorySection('resources',this)">🌍 Resources</div>
+                  <div class="sd-nav-tab" onclick="showStorySection('voices',this)">💬 Voices</div>
+                  <div class="sd-nav-tab" onclick="showStorySection('legacy',this)">🌱 Legacy</div>
+                </div>
+              </div>
+              <div class="story-section on" id="ss-overview">
+                <div class="stats-grid">
+                  <div class="stat-card"><div class="stat-n">64%</div><div class="stat-l">learners walk 5km+ to school</div></div>
+                  <div class="stat-card"><div class="stat-n">1.8×</div><div class="stat-l">classroom overcrowding</div></div>
+                  <div class="stat-card"><div class="stat-n">12 400</div><div class="stat-l">learners affected</div></div>
+                </div>
+                <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px;">The Nkandla District faces severe education infrastructure backlogs rooted in decades of under-investment. Growing youth population, long travel distances, and zero digital learning access create a compounding crisis that this programme is designed to address.</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div class="card card-blue"><div style="font-size:10px;font-weight:700;color:var(--map-blue);margin-bottom:2px;">Geographic footprint</div><div style="font-size:12px;color:var(--text-primary);font-weight:700;margin-bottom:1px;">Nkandla District</div><div style="font-size:11px;color:var(--text-muted);">Population: 180k · 78% rural · 52% youth under 24</div><div style="margin-top:6px;display:flex;gap:3px;flex-wrap:wrap;"><span class="pill pill-blue" style="font-size:9px;">Nkandla</span><span class="pill pill-outline" style="font-size:9px;">Nquthu</span><span class="pill pill-outline" style="font-size:9px;">Msinga</span></div></div>
+                  <div class="card"><div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:2px;">Project scope</div><div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">4 new schools<br>1 digital learning hub<br>Fibre connectivity for all sites<br>Heritage-integrated design</div></div>
+                </div>
+              </div>
+              <div class="story-section" id="ss-history">
+                <p style="font-size:12px;color:var(--text-muted);font-style:italic;margin-bottom:14px;">Before a brick is laid — the land's story must be told first.</p>
+                <div class="tl-view">
+                  <div class="tl-item"><div class="tl-dot-w"></div><div><div class="tl-era">Pre-colonial</div><div class="tl-name">amaZulu settlement</div><div class="tl-body">Nkandla forest sacred to the Zulu nation. Home to amaNgwane and amaChunu clans with deep ancestral land claims.</div></div></div>
+                  <div class="tl-item"><div class="tl-dot-w"></div><div><div class="tl-era">1879–1902</div><div class="tl-name">Colonial disruption & first schools</div><div class="tl-body">Anglo-Zulu War displaced communities. Missionary schools introduced — the first formal education infrastructure.</div></div></div>
+                  <div class="tl-item"><div class="tl-dot-w"></div><div><div class="tl-era">1913–1970</div><div class="tl-name">Land Acts & Bantustan era</div><div class="tl-body">Natives Land Act confined communities to homelands. Bantu Education Act deliberately underfunded Black education.</div></div></div>
+                  <div class="tl-item"><div class="tl-dot-w"></div><div><div class="tl-era">1994–today</div><div class="tl-name">Post-apartheid gaps persist</div><div class="tl-body">Despite democracy, investment remained uneven. 64% of learners still walk 5km+ to school in 2025.</div></div></div>
+                  <div class="tl-item"><div class="tl-dot-w future"></div><div><div class="tl-era">2025 →</div><div class="tl-name">This project — the next chapter</div><div class="tl-body">R350m Rural School Infrastructure Programme. First major education investment in Nkandla in over a generation.</div></div></div>
+                </div>
+                <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,180,255,0.04);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:8px 12px;">
+                  <span style="font-size:12px;color:var(--map-blue);">📖 Read the full historical timeline</span>
+                  <span class="cip-badge">+30 CIP</span>
+                </div>
+              </div>
+              <div class="story-section" id="ss-resources">
+                <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Auto-linked by Hive AI — tap any to explore its history in Resource Explorer</p>
+                <div class="resource-links">
+                  <div class="resource-link-item" onclick="showTab('resources')"><div class="rli-ico">📚</div><div class="rli-text"><div class="rli-name">Education Heritage</div><div class="rli-sub">History of schools in Nkandla</div></div><div class="rli-arrow">→</div></div>
+                  <div class="resource-link-item"><div class="rli-ico">🏢</div><div class="rli-text"><div class="rli-name">Infrastructure</div><div class="rli-sub">Roads, utilities, connectivity</div></div><div class="rli-arrow">→</div></div>
+                  <div class="resource-link-item"><div class="rli-ico">💧</div><div class="rli-text"><div class="rli-name">Water Access</div><div class="rli-sub">Nkandla water challenges</div></div><div class="rli-arrow">→</div></div>
+                  <div class="resource-link-item"><div class="rli-ico">🌱</div><div class="rli-text"><div class="rli-name">Youth Development</div><div class="rli-sub">Existing youth programmes</div></div><div class="rli-arrow">→</div></div>
+                </div>
+              </div>
+              <div class="story-section" id="ss-voices">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                  <div>
+                    <div class="section-label">Live polls</div>
+                    <div class="card" style="margin-bottom:12px;">
+                      <div class="poll-q">Do you believe more schools are needed in Nkandla?</div>
+                      <div class="poll-item"><div class="poll-label">Yes, urgently</div><div class="poll-track"><div class="poll-fill" style="width:78%"></div></div><div class="poll-pct">78%</div></div>
+                      <div class="poll-item"><div class="poll-label">Yes, not priority</div><div class="poll-track"><div class="poll-fill" style="width:14%"></div></div><div class="poll-pct">14%</div></div>
+                      <div class="poll-item"><div class="poll-label">Unsure</div><div class="poll-track"><div class="poll-fill" style="width:8%"></div></div><div class="poll-pct">8%</div></div>
+                      <div class="poll-count">342 community members voted</div>
+                    </div>
+                    <div class="card">
+                      <div class="poll-q">What should this project prioritise?</div>
+                      <div class="poll-item"><div class="poll-label">Digital learning spaces</div><div class="poll-track"><div class="poll-fill" style="width:72%"></div></div><div class="poll-pct">72%</div></div>
+                      <div class="poll-item"><div class="poll-label">Heritage & culture spaces</div><div class="poll-track"><div class="poll-fill" style="width:61%"></div></div><div class="poll-pct">61%</div></div>
+                      <div class="poll-item"><div class="poll-label">Libraries</div><div class="poll-track"><div class="poll-fill" style="width:58%"></div></div><div class="poll-pct">58%</div></div>
+                      <div class="poll-item"><div class="poll-label">Sports facilities</div><div class="poll-track"><div class="poll-fill" style="width:38%"></div></div><div class="poll-pct">38%</div></div>
+                      <div class="poll-count">342 votes · select all that apply</div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="section-label">Citizen feedback stream</div>
+                    <div class="voice-card"><div class="voice-q">"Our children walk long distances. By the time they arrive they are too tired to learn anything."</div><div class="voice-attr">Community member · Nkandla Ward 7</div></div>
+                    <div class="voice-card"><div class="voice-q">"Can the design of the new school include our clan symbols and local history? These children must know where they come from."</div><div class="voice-attr">Traditional council representative</div></div>
+                    <div class="voice-card"><div class="voice-q">"Please include a library. We have no place to read or study at night."</div><div class="voice-attr">Grade 11 student · Nkandla</div></div>
+                    <div class="add-voice">
+                      <textarea class="add-voice-input" placeholder="Add your voice to this project..."></textarea>
+                      <div class="add-voice-footer">
+                        <span class="cip-badge">+20 CIP for submitting</span>
+                        <button class="btn-primary" style="font-size:11px;padding:6px 14px;">Submit →</button>
+                      </div>
+                    </div>
+                    <div class="section-label">💡 Hive AI challenges the planners</div>
+                    <div class="ai-challenge"><div class="ai-ch-label">For government / developers</div><div class="ai-ch-q">"How can the design of these schools preserve the cultural identity of the amaChunu and amaNgwane clans who have lived on this land for centuries?"</div></div>
+                    <div class="ai-challenge"><div class="ai-ch-label">For the community</div><div class="ai-ch-q">"What does a school that truly belongs to Nkandla look like — not just functionally, but historically and culturally?"</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="story-section" id="ss-legacy">
+                <p style="font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:16px;">"How should this project shape Nkandla in the next 20 years?" — community + planners both answer.</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                  <div>
+                    <div class="section-label">Community priorities</div>
+                    <label class="legacy-check"><input type="checkbox" checked><div class="legacy-label">Better education outcomes for rural youth</div></label>
+                    <label class="legacy-check"><input type="checkbox" checked><div class="legacy-label">Heritage preservation embedded in building design</div></label>
+                    <label class="legacy-check"><input type="checkbox"><div class="legacy-label">Digital inclusion for all learners</div></label>
+                    <label class="legacy-check"><input type="checkbox"><div class="legacy-label">Economic opportunity pipeline post-school</div></label>
+                    <label class="legacy-check"><input type="checkbox"><div class="legacy-label">Community gathering and cultural spaces</div></label>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:6px;">283 community members responded</div>
+                  </div>
+                  <div>
+                    <div class="ai-projection">
+                      <div class="ai-proj-title">💡 Hive AI 20-Year Projection</div>
+                      <div class="ai-proj-body">Based on current talent data and community feedback, if this project is built with cultural and digital integration:<br><br>• 34% projected increase in youth remaining in Nkandla<br>• Engineering talent gap could close by 2038<br>• Potential R1.2bn local economic impact over 20 years<br>• amaNgwane and amaChunu identity preserved in built environment</div>
+                    </div>
+                    <div style="margin-top:12px;">
+                      <button class="btn-primary" style="width:100%;font-size:12px;padding:10px;">Add your 20-year vision → +50 CIP</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PROFILE TAB ── (with sub-tabs + challenges) -->
+        <div class="tab" id="tab-profile">
+          <div class="profile-wrap">
+
+            <!-- Profile Sub-Navigation (NEW) -->
+            <div class="profile-sub-nav">
+              <button class="profile-sub-tab on" onclick="switchProfileTab('overview')">👤 Overview</button>
+              <button class="profile-sub-tab" onclick="switchProfileTab('challenges')">🏆 Challenges</button>
+            </div>
+
+            <!-- ── PROFILE OVERVIEW ── (preserved from your code) -->
+            <div class="profile-sub-pane on" id="profile-overview">
+              <div class="profile-hero">
+                <div class="profile-avatar-lg">SN</div>
+                <div style="flex:1;">
+                  <div class="profile-name">Simangele Nxumalo</div>
+                  <div class="profile-clan">Ndwandwe · Zwide · Mkoni kaYasa</div>
+                  <div class="profile-region">Nongoma, Zululand · Based in Durban · Technology & UI/UX</div>
+                  <div class="profile-rank">
+                    <div><div class="profile-rank-name">🌍 Explorer — Level 3</div><div class="profile-cip">750 / 1000 Community Impact Points</div></div>
+                    <div style="width:140px;"><div class="prog-track"><div class="prog-fill-blue" style="width:75%"></div></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">250 CIP to Contributor</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card" style="margin-bottom:16px;">
+                <div class="section-label">Rank Progression</div>
+                <div class="rank-prog">
+                  <div class="rank-step"><div class="rank-step-dot done">🌍</div><div class="rank-step-label" style="font-size:8px;">Explorer</div></div>
+                  <div class="rank-line done"></div>
+                  <div class="rank-step"><div class="rank-step-dot done">🌍</div><div class="rank-step-label" style="font-size:8px;"></div></div>
+                  <div class="rank-line done"></div>
+                  <div class="rank-step"><div class="rank-step-dot current">🌍</div><div class="rank-step-label current" style="font-size:8px;">Lv.3</div></div>
+                  <div class="rank-line"></div>
+                  <div class="rank-step"><div class="rank-step-dot">📚</div><div class="rank-step-label" style="font-size:8px;">Contributor</div></div>
+                  <div class="rank-line"></div>
+                  <div class="rank-step"><div class="rank-step-dot">🧭</div><div class="rank-step-label" style="font-size:8px;">Steward</div></div>
+                  <div class="rank-line"></div>
+                  <div class="rank-step"><div class="rank-step-dot">🏡</div><div class="rank-step-label" style="font-size:8px;">Builder</div></div>
+                  <div class="rank-line"></div>
+                  <div class="rank-step"><div class="rank-step-dot">🌳</div><div class="rank-step-label" style="font-size:8px;">Legacy Keeper</div></div>
+                </div>
+              </div>
+
+              <div class="profile-grid">
+                <div class="card">
+                  <div class="section-label">Badges earned</div>
+                  <div class="badge-grid">
+                    <div class="badge-item"><div class="badge-ico-box earned">🌾</div><div class="badge-name earned">Sugarcane Scholar</div></div>
+                    <div class="badge-item"><div class="badge-ico-box earned">📚</div><div class="badge-name earned">Community Historian</div></div>
+                    <div class="badge-item"><div class="badge-ico-box earned">🗺️</div><div class="badge-name earned">Resource Mapper</div></div>
+                    <div class="badge-item"><div class="badge-ico-box locked">🎙️</div><div class="badge-name">Knowledge Keeper</div></div>
+                    <div class="badge-item"><div class="badge-ico-box locked">🌱</div><div class="badge-name">Community Builder</div></div>
+                    <div class="badge-item"><div class="badge-ico-box locked">🤝</div><div class="badge-name">Knowledge Connector</div></div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="section-label" style="display:flex;justify-content:space-between;"><span>Active Challenges</span><span style="color:var(--accent-gold);font-weight:700;">Resets in 3d 14h</span></div>
+                  <div class="card card-gold" style="margin-bottom:10px;">
+                    <div style="font-size:9px;font-weight:700;color:var(--accent-gold);margin-bottom:2px;">🔥 ACTIVE</div>
+                    <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Complete KZN Resource Journey</div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">2 / 8 resources explored</div>
+                    <div class="prog-track"><div class="prog-fill-gold" style="width:25%"></div></div>
+                    <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:9px;color:var(--text-muted);"><span>2 / 8</span><span style="color:var(--accent-gold);font-weight:700;">+500 CIP reward</span></div>
+                  </div>
+                  <div class="challenge-item"><div class="ch-ico-box">🗺️</div><div class="ch-info"><div class="ch-title">Map 10 community assets</div><div class="ch-sub">Help document KZN's hidden resources</div><div class="prog-track"><div class="prog-fill-blue" style="width:70%"></div></div></div><div class="ch-right"><div class="ch-prog-label">7/10</div><div class="ch-cip">+200</div></div></div>
+                  <div class="challenge-item"><div class="ch-ico-box">💬</div><div class="ch-info"><div class="ch-title">Vote on 3 project polls</div><div class="ch-sub">Make your community voice count</div><div class="prog-track"><div class="prog-fill-blue" style="width:33%"></div></div></div><div class="ch-right"><div class="ch-prog-label">1/3</div><div class="ch-cip">+100</div></div></div>
+                  <div class="challenge-item"><div class="ch-ico-box">🎙️</div><div class="ch-info"><div class="ch-title">Record 2 oral histories</div><div class="ch-sub">Preserve community knowledge</div><div class="prog-track"></div></div><div class="ch-right"><div class="ch-prog-label">0/2</div><div class="ch-cip gold">+300</div></div></div>
+                </div>
+              </div>
+
+              <h2 style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:12px;letter-spacing:-.01em;">🌳 Legacy Score</h2>
+              <div class="legacy-grid" style="margin-bottom:20px;">
+                <div class="legacy-stat"><div class="legacy-n">12</div><div class="legacy-l">Stories shared</div></div>
+                <div class="legacy-stat"><div class="legacy-n">7</div><div class="legacy-l">Assets mapped</div></div>
+                <div class="legacy-stat"><div class="legacy-n">5</div><div class="legacy-l">Histories preserved</div></div>
+                <div class="legacy-stat"><div class="legacy-n">2</div><div class="legacy-l">Projects joined</div></div>
+              </div>
+              <div class="card card-blue" style="text-align:center;padding:14px;">
+                <div style="font-size:13px;color:var(--map-blue);line-height:1.6;">Your contributions have helped preserve community knowledge and informed future development decisions in KwaZulu-Natal.</div>
+              </div>
+            </div>
+
+            <!-- ── CHALLENGES SUB-TAB (NEW) ── -->
+            <div class="profile-sub-pane" id="profile-challenges">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+                <div>
+                  <div style="font-size:18px;font-weight:900;letter-spacing:-.02em;color:var(--text-primary);">🏆 Challenges</div>
+                  <div style="font-size:11px;color:var(--text-muted);">Complete challenges to earn CIP and advance</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:9px;color:var(--accent-gold);font-weight:700;">Weekly reset</div>
+                  <div style="font-size:16px;font-weight:900;color:var(--accent-gold);">3d 14h</div>
+                </div>
+              </div>
+
+              <!-- Active Main Challenge -->
+              <div class="active-challenge-card">
+                <div class="ac-label">🔥 Active Main Challenge</div>
+                <div class="ac-title">Complete the KZN Resource Journey</div>
+                <div class="ac-sub">Explore all 8 KZN resources · 2 of 8 done</div>
+                <div class="ac-prog-row">
+                  <span>2 / 8 resources explored</span>
+                  <span class="ac-reward">🏅 +500 CIP · KZN Heritage Master badge</span>
+                </div>
+                <div class="prog-track"><div class="prog-fill-gold" style="width:25%"></div></div>
+                <div style="margin-top:10px;">
+                  <button class="btn-primary" style="font-size:11px;padding:8px 18px;background:var(--accent-gold);color:var(--bg-deep);">Continue Exploring →</button>
+                </div>
+              </div>
+
+              <!-- Weekly + Community Challenges -->
+              <div class="two-col">
+                <div>
+                  <div class="section-label">Weekly personal challenges</div>
+                  <div class="ch-list">
+                    <div class="ch-item"><div class="ch-ico">🗺️</div><div class="ch-info"><div class="ch-title">Map 10 community assets</div><div class="ch-sub">Document KZN's hidden resources</div><div class="prog-track"><div class="prog-fill-g" style="width:70%"></div></div></div><div class="ch-right"><div class="ch-prog-lbl">7/10</div><div class="ch-cip">+200</div></div></div>
+                    <div class="ch-item"><div class="ch-ico">💬</div><div class="ch-info"><div class="ch-title">Vote on 3 project polls</div><div class="ch-sub">Make your voice count</div><div class="prog-track"><div class="prog-fill-g" style="width:33%"></div></div></div><div class="ch-right"><div class="ch-prog-lbl">1/3</div><div class="ch-cip">+100</div></div></div>
+                    <div class="ch-item"><div class="ch-ico">🎙️</div><div class="ch-info"><div class="ch-title">Record 2 oral histories</div><div class="ch-sub">Preserve community knowledge</div><div class="prog-track"></div></div><div class="ch-right"><div class="ch-prog-lbl">0/2</div><div class="ch-cip gold">+300</div></div></div>
+                    <div class="ch-item"><div class="ch-ico">🔗</div><div class="ch-info"><div class="ch-title">Explore 3 clan-connected nodes</div><div class="ch-sub">Find your Nxumalo lineage</div><div class="prog-track"><div class="prog-fill-g" style="width:100%"></div></div></div><div class="ch-right"><div class="ch-prog-lbl">3/3</div><div class="ch-cip done">+60 ✓</div></div></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="section-label">Community challenges</div>
+                  <div class="ch-list">
+                    <div class="ch-item"><div class="ch-ico">🏞️</div><div class="ch-info"><div class="ch-title">Map 500 community assets</div><div class="ch-sub">342 / 500 mapped</div><div class="prog-track"><div class="prog-fill-g" style="width:68%"></div></div></div><div class="ch-right"><div class="ch-prog-lbl">342/500</div><div class="ch-cip">+50 each</div></div></div>
+                    <div class="ch-item"><div class="ch-ico">🗺️</div><div class="ch-info"><div class="ch-title">Complete Community Atlas</div><div class="ch-sub">7 of 11 districts complete</div><div class="prog-track"><div class="prog-fill-g" style="width:63%"></div></div></div><div class="ch-right"><div class="ch-prog-lbl">7/11</div><div class="ch-cip gold">+1000 CIP</div></div></div>
+                    <div class="ch-item"><div class="ch-ico">📚</div><div class="ch-info"><div class="ch-title">Explore all 8 KZN resources</div><div class="ch-sub">128 of 500 explorers complete</div><div class="prog-track"><div class="prog-fill-g" style="width:26%"></div></div></div><div class="ch-right"><div class="ch-prog-lbl">128/500</div><div class="ch-cip">+500 CIP</div></div></div>
+                    <div class="ch-item"><div class="ch-ico">🌱</div><div class="ch-info"><div class="ch-title">Contribute 1 000 future visions</div><div class="ch-sub">284 visions submitted</div><div class="prog-track"><div class="prog-fill-g" style="width:28%"></div></div></div><div class="ch-right"><div class="ch-prog-lbl">284/1000</div><div class="ch-cip gold">+200 CIP</div></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Leaderboards -->
+              <div style="margin-top:4px;">
+                <div class="section-label">🌍 Top Communities & Contributors</div>
+                <div class="leader-grid">
+                  <div class="leader-card">
+                    <div class="leader-card-header">🏘️ Top Communities</div>
+                    <div class="leader-item"><div class="leader-rank top">1</div><div class="leader-name">Nkandla</div><div class="leader-score">1 240 CIP</div></div>
+                    <div class="leader-item"><div class="leader-rank top">2</div><div class="leader-name">Empangeni</div><div class="leader-score">980 CIP</div></div>
+                    <div class="leader-item"><div class="leader-rank top">3</div><div class="leader-name">KwaMashu</div><div class="leader-score">840 CIP</div></div>
+                    <div class="leader-item"><div class="leader-rank">4</div><div class="leader-name">Nongoma</div><div class="leader-score">760 CIP</div></div>
+                    <div class="leader-item"><div class="leader-rank">5</div><div class="leader-name">Mthatha</div><div class="leader-score">620 CIP</div></div>
+                  </div>
+                  <div class="leader-card">
+                    <div class="leader-card-header">📚 Top Oral Historians</div>
+                    <div class="leader-item"><div class="leader-rank top">1</div><div class="leader-name">T. Mkhize</div><div class="leader-score">8 stories</div></div>
+                    <div class="leader-item"><div class="leader-rank top">2</div><div class="leader-name">B. Dlamini</div><div class="leader-score">6 stories</div></div>
+                    <div class="leader-item"><div class="leader-rank top">3</div><div class="leader-name">Z. Ntuli</div><div class="leader-score">5 stories</div></div>
+                    <div class="leader-item"><div class="leader-rank">4</div><div class="leader-name">S. Gumede</div><div class="leader-score">4 stories</div></div>
+                    <div class="leader-item"><div class="leader-rank">5</div><div class="leader-name">N. Cele</div><div class="leader-score">3 stories</div></div>
+                  </div>
+                  <div class="leader-card">
+                    <div class="leader-card-header">🗺️ Top Resource Mappers</div>
+                    <div class="leader-item"><div class="leader-rank top">1</div><div class="leader-name">K. Buthelezi</div><div class="leader-score">24 assets</div></div>
+                    <div class="leader-item"><div class="leader-rank top">2</div><div class="leader-name">L. Zulu</div><div class="leader-score">18 assets</div></div>
+                    <div class="leader-item"><div class="leader-rank top">3</div><div class="leader-name">A. Ndlovu</div><div class="leader-score">15 assets</div></div>
+                    <div class="leader-item"><div class="leader-rank">4</div><div class="leader-name">M. Sithole</div><div class="leader-score">12 assets</div></div>
+                    <div class="leader-item"><div class="leader-rank">5</div><div class="leader-name">P. Mthethwa</div><div class="leader-score">10 assets</div></div>
+                  </div>
+                  <div class="leader-card">
+                    <div class="leader-card-header">🌱 Top Community Builders</div>
+                    <div class="leader-item"><div class="leader-rank top">1</div><div class="leader-name">R. Shabalala</div><div class="leader-score">5 projects</div></div>
+                    <div class="leader-item"><div class="leader-rank top">2</div><div class="leader-name">F. Mchunu</div><div class="leader-score">4 projects</div></div>
+                    <div class="leader-item"><div class="leader-rank top">3</div><div class="leader-name">S. Nxumalo <span class="clan-link">🔗</span></div><div class="leader-score">2 projects</div></div>
+                    <div class="leader-item"><div class="leader-rank">4</div><div class="leader-name">C. Majola</div><div class="leader-score">2 projects</div></div>
+                    <div class="leader-item"><div class="leader-rank">5</div><div class="leader-name">V. Ntanzi</div><div class="leader-score">1 project</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <div class="mobile-bottom-nav" id="mobile-nav">
+    <button class="mobile-nav-item on" onclick="showTab('home')" data-tab="home">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="mobile-nav-item" onclick="showTab('map')" data-tab="map">
+      <span class="nav-icon">🗺️</span>
+      <span class="nav-label">Map</span>
+    </button>
+    <button class="mobile-nav-item" onclick="showTab('resources')" data-tab="resources">
+      <span class="nav-icon">🧭</span>
+      <span class="nav-label">Explore</span>
+    </button>
+    <button class="mobile-nav-item" onclick="showTab('story')" data-tab="story">
+      <span class="nav-icon">📖</span>
+      <span class="nav-label">Stories</span>
+    </button>
+    <button class="mobile-nav-item" onclick="showTab('profile')" data-tab="profile">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Profile</span>
+    </button>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════
+    // NAVIGATION
+    // ═══════════════════════════════════════════
+    function showOnboarding() {
+      document.getElementById('landing').classList.remove('active');
+      document.getElementById('onboarding').classList.add('active');
+      initOb();
+    }
+
+    function showApp(tab) {
+      document.getElementById('landing').classList.remove('active');
+      document.getElementById('onboarding').classList.remove('active');
+      document.getElementById('app').classList.add('active');
+      document.getElementById('app').style.display = 'flex';
+      showTab(tab || 'home');
+      if (tab === 'map') {
+        setTimeout(function() { buildMapSidebar();
+          selectCat('spt'); }, 100);
+      }
+    }
+
+    function showTab(id) {
+      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.sb-item').forEach(function(n) { n.classList.remove('on'); });
+      document.querySelectorAll('.mobile-nav-item').forEach(function(n) { n.classList.remove('on'); });
+
+      var tabEl = document.getElementById('tab-' + id);
+      if (tabEl) tabEl.classList.add('active');
+
+      var sbEl = document.getElementById('nav-' + id);
+      if (sbEl) sbEl.classList.add('on');
+
+      var mobEl = document.querySelector('.mobile-nav-item[data-tab="' + id + '"]');
+      if (mobEl) mobEl.classList.add('on');
+
+      // When switching to profile, default to overview
+      if (id === 'profile') {
+        switchProfileTab('overview');
+      }
+
+      if (id === 'map' && !mapInitialized) {
+        setTimeout(function() { buildMapSidebar();
+          selectCat('spt');
+          mapInitialized = true; }, 50);
+      }
+    }
+
+    // ── Profile sub-tab switching (NEW) ──
+    function switchProfileTab(id) {
+      document.querySelectorAll('.profile-sub-pane').forEach(function(p) { p.classList.remove('on'); });
+      document.querySelectorAll('.profile-sub-tab').forEach(function(t) { t.classList.remove('on'); });
+
+      var pane = document.getElementById('profile-' + id);
+      if (pane) pane.classList.add('on');
+
+      // Find the tab button that matches
+      var tabs = document.querySelectorAll('.profile-sub-tab');
+      tabs.forEach(function(t) {
+        if (t.textContent.toLowerCase().includes(id)) {
+          t.classList.add('on');
+        }
+      });
+    }
+
+    function showStorySection(id, el) {
+      document.querySelectorAll('.story-section').forEach(function(s) { s.classList.remove('on'); });
+      document.querySelectorAll('.sd-nav-tab').forEach(function(t) { t.classList.remove('on'); });
+      var sec = document.getElementById('ss-' + id);
+      if (sec) sec.classList.add('on');
+      if (el) el.classList.add('on');
+    }
+
+    // ── Onboarding ──
+    var obStep = 0,
+      obProfile = {};
+    var obFlow = [
+      { q: "Welcome to TribalHive. To anchor you to your roots and build your community profile, what is your first name and birth surname?", key: 'name', prog: 0,
+        step: 'Step 1 of 4 — Identity' },
+      { q: null, key: 'location', prog: 25, step: 'Step 2 of 4 — Location' },
+      { q: "Camagu. Now let's look at your gifts so we can align them with regional development. What are your primary talents, skills, or passions — and which industry sector do they belong to?",
+        key: 'talent', prog: 50, step: 'Step 3 of 4 — Talent' },
+      { q: "Yebo. Last question — what is your highest level of education, and are you currently working, studying, or both?",
+        key: 'education', prog: 75, step: 'Step 4 of 4 — Education' }
+    ];
+
+    function initOb() {
+      obStep = 0;
+      obProfile = {};
+      var chat = document.getElementById('ob-chat');
+      chat.innerHTML = '';
+      addObBubble('ai', obFlow[0].q);
+      updateObProg(0, obFlow[0].step);
+      document.getElementById('ob-input').focus();
+    }
+
+    function addObBubble(type, text) {
+      var chat = document.getElementById('ob-chat');
+      var d = document.createElement('div');
+      d.className = type === 'ai' ? 'ai-bubble' : 'user-bubble';
+      if (type === 'ai') d.innerHTML = '<div class="ai-lbl">⬡ Hive AI</div><div class="ai-txt">' + text + '</div>';
+      else d.innerHTML = text;
+      chat.appendChild(d);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function detectClan(name) {
+      var n = name.toLowerCase();
+      if (n.includes('nxumalo')) return { clan: 'Nxumalo', greeting: '<span class="clan-greeting">Sawubona Nxumalo! Ndwandwe, Zwide, Mkoni kaYasa!</span>',
+        lang: 'Zulu' };
+      if (n.includes('zulu')) return { clan: 'Zulu', greeting: '<span class="clan-greeting">Sawubona! Ondlunkulu bakwaZulu!</span>',
+        lang: 'Zulu' };
+      if (n.includes('dlamini')) return { clan: 'Dlamini', greeting: '<span class="clan-greeting">Sawubona Dlamini! Ondlunkulu!</span>',
+        lang: 'Zulu' };
+      if (n.includes('mkhize')) return { clan: 'Mkhize', greeting: '<span class="clan-greeting">Sawubona Mkhize! Embo!</span>',
+        lang: 'Zulu' };
+      if (n.includes('molefe') || n.includes('mokoena')) return { clan: 'Mokoena',
+        greeting: '<span class="clan-greeting">Dumelang! Re a leboha!</span>', lang: 'Sotho' };
+      if (n.includes('baloyi') || n.includes('maluleke')) return { clan: 'Baloyi',
+        greeting: '<span class="clan-greeting">Dumela! Re a go amogela!</span>', lang: 'Pedi' };
+      return { clan: null, greeting: '<span class="clan-greeting">It is an honour to have you in the Hive.</span>',
+        lang: 'Zulu' };
+    }
+
+    function updateObProg(pct, label) {
+      document.getElementById('ob-prog-bar').style.width = pct + '%';
+      document.getElementById('ob-step-label').textContent = label;
+      document.getElementById('ob-pct-label').textContent = pct + '%';
+    }
+
+    function sendOb() {
+      var input = document.getElementById('ob-input');
+      var val = input.value.trim();
+      if (!val) return;
+      input.value = '';
+      addObBubble('user', val);
+      obProfile[obFlow[obStep].key] = val;
+      var chat = document.getElementById('ob-chat');
+      var typing = document.createElement('div');
+      typing.className = 'typing-bubble';
+      typing.id = 'ob-typing';
+      typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+      chat.appendChild(typing);
+      chat.scrollTop = chat.scrollHeight;
+      setTimeout(function() {
+        var t = document.getElementById('ob-typing');
+        if (t) t.remove();
+        if (obStep === 0) {
+          var ci = detectClan(val);
+          obProfile.clan = ci;
+          var langNote = ci.lang === 'Sotho' ? ' <em>Ke tšwela pele ka Sesotho.</em>' : ci.lang === 'Pedi' ?
+            ' <em>Re tšwela pele ka Sepedi.</em>' : '';
+          addObBubble('ai', ci.greeting + ' It is an honour to have your lineage in the Hive.' + langNote +
+            '<br><br>Let\'s map your environment — where do you currently stay, and what is your home rural area or district?'
+            );
+          updateObProg(25, obFlow[1].step);
+        } else if (obStep === 1) {
+          addObBubble('ai', obFlow[2].q);
+          updateObProg(50, obFlow[2].step);
+        } else if (obStep === 2) {
+          addObBubble('ai', obFlow[3].q);
+          updateObProg(75, obFlow[3].step);
+        } else if (obStep === 3) {
+          addObBubble('ai',
+            '✅ <strong>Profile complete.</strong><br><br>Your talent is now placed as a node on the Community Map. Head to <strong>Community Map</strong> to see where your lineage and skills connect across KZN.'
+            );
+          updateObProg(100, 'Complete ✓');
+          document.getElementById('ob-input-wrap').style.display = 'none';
+          setTimeout(function() { document.getElementById('ob-complete').style.display = 'block'; }, 800);
+        }
+        obStep++;
+      }, 700);
+    }
+
+    // ── Home Chat ──
+    function homeAsk(q) {
+      var input = document.getElementById('home-input');
+      input.value = q;
+      sendHome();
+    }
+
+    function sendHome() {
+      var input = document.getElementById('home-input');
+      var val = input.value.trim();
+      if (!val) return;
+      input.value = '';
+      var chat = document.getElementById('home-chat');
+      var ub = document.createElement('div');
+      ub.className = 'user-bubble';
+      ub.textContent = val;
+      chat.appendChild(ub);
+      setTimeout(function() {
+        var responses = {
+          'Show my Nxumalo clan on the map': 'Navigating to the Community Map and filtering for Nxumalo clan connections across KZN. You have connections in <strong>6 nodes</strong> — Nongoma, Vryheid, Ulundi, Durban, Ladysmith, and Mkuze. Your clan shows strength in Sport & Athletics and Agriculture.',
+          'What is KZN producing most?': 'KZN\'s top talent category is <strong>Sport & Athletics at 20%</strong>, followed by Agriculture at 18% and Arts & Culture at 16%. The most critical gap is Healthcare at just 5% — a development opportunity that needs urgent attention.',
+          'Find engineering talent near Nongoma': 'Engineering talent near Nongoma (Zululand district) sits at <strong>12%</strong> of the local index. Key clan surnames: Nxumalo, Dlamini, Buthelezi. The nearest engineering concentration hub is Ulundi at 19% and Richards Bay at 20%.',
+          'New project stories in KZN': 'There are <strong>4 active projects</strong> in KZN right now. The Rural School Infrastructure Programme in Nkandla (R350m) has an open community poll. The Clean Water Access Programme in Richards Bay is seeking community votes urgently.'
+        };
+        var reply = responses[val] ||
+          'That\'s a great question about KZN\'s development. Based on the current talent data and community intelligence in our database, I can see several relevant patterns. Would you like me to filter the Community Map to show you this directly?';
+        var ab = document.createElement('div');
+        ab.className = 'ai-bubble';
+        ab.innerHTML = '<div class="ai-lbl">⬡ Hive AI</div><div class="ai-txt">' + reply + '</div>';
+        chat.appendChild(ab);
+        chat.scrollTop = chat.scrollHeight;
+        if (val.includes('clan') || val.includes('map')) setTimeout(function() { showTab('map'); }, 1200);
+      }, 600);
+    }
+
+    // ── Map ──
+    var MY_CLANS = ['Nxumalo', 'Ndwandwe', 'Zwide'];
+    var mapInitialized = false;
+    var activeCat = null,
+      activeSub = null,
+      activeClan = null;
+    var mapScale = 1,
+      mapTx = 0,
+      mapTy = 0;
+    var dragging = false,
+      startX, startY, startTx, startTy;
+
+    var cats = [
+      { id: 'spt', name: 'Sport & Athletics', pct: 20, color: '#00d4ff', subs: ['Soccer', 'Athletics', 'Boxing', 'Rugby',
+          'Swimming', 'Cricket'
+        ], warn: false },
+      { id: 'agr', name: 'Agriculture', pct: 18, color: '#00b4ff', subs: ['Sugarcane Farming', 'Livestock', 'Crop Farming',
+          'Forestry', 'Aquaculture'
+        ], warn: false },
+      { id: 'art', name: 'Arts & Culture', pct: 16, color: '#e8b84a', subs: ['Maskandi Music', 'Visual Arts', 'Dance',
+          'Theatre', 'Craft'
+        ], warn: false },
+      { id: 'edu', name: 'Education', pct: 14, color: '#7c3aed', subs: ['Teaching', 'Academic Research',
+          'Early Childhood', 'Curriculum Design'
+        ], warn: false },
+      { id: 'eng', name: 'Engineering', pct: 12, color: '#0891b2', subs: ['Electrical Engineering', 'Civil Engineering',
+          'Mechanical Eng', 'Software Eng', 'Mining Eng'
+        ], warn: false },
+      { id: 'fin', name: 'Finance & Business', pct: 9, color: '#6b7280', subs: ['Accounting', 'Investment',
+          'Entrepreneurship', 'Banking'
+        ], warn: false },
+      { id: 'tch', name: 'Technology', pct: 8, color: '#ea580c', subs: ['Software Dev', 'UI/UX Design', 'Data Science',
+          'Cybersecurity'
+        ], warn: 'warn' },
+      { id: 'law', name: 'Law & Governance', pct: 7, color: '#9333ea', subs: ['Commercial Law', 'Public Law',
+          'Traditional Law', 'Human Rights'
+        ], warn: false },
+      { id: 'res', name: 'Research & Science', pct: 6, color: '#0e7490', subs: ['Life Sciences', 'Physical Science',
+          'Social Research', 'Medical Research'
+        ], warn: 'warn' },
+      { id: 'hlt', name: 'Healthcare', pct: 5, color: '#e84a5a', subs: ['Medicine', 'Nursing', 'Pharmacy',
+          'Mental Health', 'Traditional Healing'
+        ], warn: 'danger' },
+    ];
+
+    var nodes = [{
+        id: 'nongoma',
+        city: 'Nongoma',
+        district: 'Zululand',
+        x: 298,
+        y: 162,
+        cats: { spt: 22, agr: 28, art: 20, edu: 14, eng: 12, fin: 6, tch: 4, law: 5, res: 3, hlt: 4 },
+        clans: { spt: ['Nxumalo', 'Zulu', 'Buthelezi', 'Mthethwa'], agr: ['Nxumalo', 'Zulu', 'Ntuli', 'Mkhize'],
+          art: ['Nxumalo', 'Buthelezi', 'Ndlovu'], edu: ['Nxumalo', 'Dlamini', 'Mchunu'],
+          eng: ['Nxumalo', 'Dlamini', 'Buthelezi'], fin: ['Zulu', 'Nxumalo'], tch: ['Nxumalo', 'Dlamini'],
+          law: ['Nxumalo', 'Dlamini'], res: ['Nxumalo', 'Mthethwa'], hlt: ['Mkhize', 'Nxumalo'] }
+      },
+      {
+        id: 'durban',
+        city: 'Durban',
+        district: 'eThekwini',
+        x: 452,
+        y: 368,
+        cats: { spt: 31, agr: 8, art: 28, edu: 26, eng: 22, fin: 30, tch: 24, law: 20, res: 16, hlt: 18 },
+        clans: { spt: ['Gumede', 'Mthembu', 'Ndlovu', 'Cele', 'Nxumalo'], agr: ['Mkhize', 'Ntuli', 'Cele'],
+          art: ['Cele', 'Gumede', 'Dlamini', 'Nxumalo'], edu: ['Dlamini', 'Mchunu', 'Shabalala'],
+          eng: ['Gumede', 'Dlamini', 'Cele', 'Nxumalo'], fin: ['Gumede', 'Dlamini', 'Cele'],
+          tch: ['Gumede', 'Dlamini', 'Nxumalo'], law: ['Gumede', 'Mthethwa', 'Dlamini'],
+          res: ['Cele', 'Mthethwa', 'Nxumalo'], hlt: ['Mkhize', 'Gumede', 'Cele'] }
+      },
+      {
+        id: 'pmb',
+        city: 'Pietermaritzburg',
+        district: 'uMgungundlovu',
+        x: 324,
+        y: 396,
+        cats: { spt: 18, agr: 12, art: 14, edu: 22, eng: 16, fin: 14, tch: 12, law: 18, res: 10, hlt: 10 },
+        clans: { spt: ['Mthembu', 'Ndlovu', 'Ntanzi'], agr: ['Ntuli', 'Mkhize'], art: ['Shabalala', 'Buthelezi'],
+          edu: ['Mchunu', 'Dlamini', 'Nxumalo'], eng: ['Majola', 'Dlamini', 'Mthethwa'],
+          fin: ['Dlamini', 'Ntuli'], tch: ['Dlamini', 'Majola'], law: ['Majola', 'Dlamini', 'Nxumalo'],
+          res: ['Mthethwa', 'Majola'], hlt: ['Mkhize', 'Majola'] }
+      },
+      {
+        id: 'richards',
+        city: 'Richards Bay',
+        district: 'King Cetshwayo',
+        x: 540,
+        y: 256,
+        cats: { spt: 18, agr: 10, art: 9, edu: 12, eng: 20, fin: 10, tch: 9, law: 6, res: 7, hlt: 6 },
+        clans: { spt: ['Gumede', 'Ndlovu', 'Mthethwa'], agr: ['Zulu', 'Mkhize'], art: ['Ntanzi', 'Buthelezi'],
+          edu: ['Mthethwa', 'Ntanzi'], eng: ['Mthethwa', 'Ntanzi', 'Gumede'], fin: ['Gumede', 'Ntanzi'],
+          tch: ['Mthethwa', 'Gumede'], law: ['Mthethwa', 'Ntanzi'], res: ['Ntanzi', 'Mthethwa'],
+          hlt: ['Mkhize', 'Gumede'] }
+      },
+      {
+        id: 'ladysmith',
+        city: 'Ladysmith',
+        district: 'uThukela',
+        x: 202,
+        y: 289,
+        cats: { spt: 14, agr: 16, art: 10, edu: 14, eng: 11, fin: 7, tch: 4, law: 6, res: 4, hlt: 5 },
+        clans: { spt: ['Ntuli', 'Mthembu', 'Nxumalo'], agr: ['Ntuli', 'Mkhize', 'Nxumalo'],
+          art: ['Mchunu', 'Shabalala'], edu: ['Mchunu', 'Dlamini', 'Nxumalo'],
+          eng: ['Mchunu', 'Ntuli', 'Dlamini'], fin: ['Dlamini', 'Ntuli'], tch: ['Dlamini', 'Mchunu'],
+          law: ['Mchunu', 'Dlamini', 'Nxumalo'], res: ['Ntuli', 'Mchunu'], hlt: ['Mkhize', 'Ntuli'] }
+      },
+      {
+        id: 'ulundi',
+        city: 'Ulundi',
+        district: 'Zululand',
+        x: 370,
+        y: 202,
+        cats: { spt: 20, agr: 22, art: 18, edu: 14, eng: 9, fin: 5, tch: 3, law: 5, res: 3, hlt: 3 },
+        clans: { spt: ['Zulu', 'Ndlovu', 'Buthelezi', 'Nxumalo'], agr: ['Zulu', 'Ntuli', 'Nxumalo', 'Mkhize'],
+          art: ['Zulu', 'Buthelezi', 'Nxumalo'], edu: ['Zulu', 'Mchunu', 'Nxumalo'],
+          eng: ['Zulu', 'Buthelezi', 'Nxumalo'], fin: ['Zulu', 'Buthelezi'], tch: ['Zulu', 'Buthelezi'],
+          law: ['Zulu', 'Nxumalo'], res: ['Zulu', 'Nxumalo'], hlt: ['Mkhize', 'Zulu'] }
+      },
+      {
+        id: 'mkuze',
+        city: 'Mkuze',
+        district: 'uMkhanyakude',
+        x: 432,
+        y: 118,
+        cats: { spt: 12, agr: 18, art: 8, edu: 7, eng: 4, fin: 3, tch: 2, law: 2, res: 2, hlt: 2 },
+        clans: { spt: ['Ndlovu', 'Zulu', 'Nxumalo'], agr: ['Zulu', 'Ndlovu', 'Mkhize', 'Nxumalo'],
+          art: ['Ndlovu', 'Buthelezi'], edu: ['Ndlovu', 'Mthethwa'], eng: ['Ndlovu', 'Zulu'],
+          fin: ['Ndlovu', 'Zulu'], tch: ['Ndlovu'], law: ['Ndlovu'], res: ['Ndlovu'], hlt: ['Mkhize', 'Ndlovu'] }
+      },
+      {
+        id: 'vryheid',
+        city: 'Vryheid',
+        district: 'Zululand',
+        x: 243,
+        y: 180,
+        cats: { spt: 16, agr: 20, art: 10, edu: 11, eng: 8, fin: 5, tch: 3, law: 4, res: 3, hlt: 3 },
+        clans: { spt: ['Nxumalo', 'Zulu', 'Mthethwa'], agr: ['Nxumalo', 'Zulu', 'Ntuli', 'Mkhize'],
+          art: ['Nxumalo', 'Buthelezi', 'Ndlovu'], edu: ['Nxumalo', 'Dlamini', 'Mchunu'],
+          eng: ['Nxumalo', 'Buthelezi', 'Dlamini'], fin: ['Nxumalo', 'Zulu'], tch: ['Nxumalo', 'Dlamini'],
+          law: ['Nxumalo', 'Dlamini'], res: ['Nxumalo', 'Buthelezi'], hlt: ['Mkhize', 'Nxumalo'] }
+      },
+      {
+        id: 'stanger',
+        city: 'KwaDukuza',
+        district: 'iLembe',
+        x: 498,
+        y: 322,
+        cats: { spt: 15, agr: 9, art: 12, edu: 11, eng: 10, fin: 9, tch: 7, law: 6, res: 4, hlt: 6 },
+        clans: { spt: ['Cele', 'Ndlovu', 'Gumede'], agr: ['Mkhize', 'Ntuli'], art: ['Cele', 'Gumede'],
+          edu: ['Dlamini', 'Gumede'], eng: ['Gumede', 'Cele', 'Dlamini'], fin: ['Gumede', 'Cele'],
+          tch: ['Gumede', 'Dlamini'], law: ['Dlamini', 'Gumede'], res: ['Cele', 'Gumede'],
+          hlt: ['Mkhize', 'Gumede'] }
+      },
+      {
+        id: 'portshep',
+        city: 'Port Shepstone',
+        district: 'Ugu',
+        x: 424,
+        y: 492,
+        cats: { spt: 13, agr: 8, art: 11, edu: 10, eng: 8, fin: 7, tch: 4, law: 5, res: 3, hlt: 5 },
+        clans: { spt: ['Mthembu', 'Cele', 'Ntanzi'], agr: ['Mkhize', 'Ntuli'], art: ['Cele', 'Mkhize'],
+          edu: ['Mkhize', 'Dlamini'], eng: ['Ntanzi', 'Mkhize', 'Cele'], fin: ['Mkhize', 'Dlamini'],
+          tch: ['Ntanzi', 'Mkhize'], law: ['Mkhize', 'Ntanzi'], res: ['Mkhize'], hlt: ['Mkhize', 'Ntanzi'] }
+      },
+      {
+        id: 'kokstad',
+        city: 'Kokstad',
+        district: 'Harry Gwala',
+        x: 316,
+        y: 506,
+        cats: { spt: 10, agr: 11, art: 9, edu: 12, eng: 7, fin: 5, tch: 3, law: 6, res: 3, hlt: 5 },
+        clans: { spt: ['Cele', 'Mthembu', 'Mkhize'], agr: ['Mkhize', 'Ntuli'], art: ['Mkhize', 'Cele'],
+          edu: ['Mkhize', 'Dlamini'], eng: ['Mkhize', 'Cele', 'Ntanzi'], fin: ['Mkhize', 'Dlamini'],
+          tch: ['Mkhize', 'Ntanzi'], law: ['Mkhize', 'Cele'], res: ['Mkhize'], hlt: ['Mkhize', 'Cele'] }
+      },
+    ];
+
+    function buildMapSidebar() {
+      var list = document.getElementById('cat-list');
+      list.innerHTML = '';
+      cats.forEach(function(c) {
+        var wrapper = document.createElement('div');
+        var pctColor = c.warn === 'danger' ? 'var(--accent-red)' : c.warn === 'warn' ? 'var(--accent-gold)' :
+          'var(--map-blue)';
+        var fillCls = c.warn === 'danger' ? 'danger' : c.warn === 'warn' ? 'warn' : '';
+        var item = document.createElement('div');
+        item.className = 'cat-item' + (activeCat === c.id ? ' on' : '');
+        item.id = 'ci-' + c.id;
+        item.innerHTML =
+          '<div class="cat-top"><span class="cat-name">' + c.name + '</span><span class="cat-pct" style="color:' +
+          pctColor + '">' + c.pct + '%</span></div><div class="cat-bar-track"><div class="cat-bar-fill ' +
+          fillCls + '" style="width:' + Math.round(c.pct / 22 * 100) +
+          '%;background:' + (activeCat === c.id ? c.color : 'var(--border-subtle)') + '"></div></div>';
+        item.onclick = function() { selectCat(c.id); };
+        var subPanel = document.createElement('div');
+        subPanel.className = 'sub-panel' + (activeCat === c.id ? ' open' : '');
+        subPanel.id = 'sp-' + c.id;
+        c.subs.forEach(function(s) {
+          var si = document.createElement('div');
+          si.className = 'sub-item' + (activeSub === s ? ' on' : '');
+          si.textContent = '↳ ' + s;
+          si.onclick = function(e) { e.stopPropagation();
+            selectSub(s, c.id); };
+          subPanel.appendChild(si);
+        });
+        wrapper.appendChild(item);
+        wrapper.appendChild(subPanel);
+        list.appendChild(wrapper);
+      });
+    }
+
+    function selectCat(id) {
+      activeCat = id;
+      activeSub = null;
+      activeClan = null;
+      var cat = cats.find(function(c) { return c.id === id; });
+      document.getElementById('hud-title').textContent = cat.name + ' — KZN';
+      document.getElementById('hud-sub').textContent = 'Tap nodes · click for clan detail';
+      document.getElementById('hud-clan').classList.remove('show');
+      document.getElementById('leg-clan-row').style.display = 'none';
+      document.getElementById('map-clan-sheet').classList.remove('show');
+      buildMapSidebar();
+      buildClanList(id);
+      renderMap();
+    }
+
+    function selectSub(sub, catId) {
+      activeSub = sub;
+      activeClan = null;
+      document.getElementById('hud-title').textContent = sub + ' — KZN';
+      document.getElementById('hud-sub').textContent = cats.find(function(c) { return c.id === catId; }).name +
+      ' subcategory';
+      buildMapSidebar();
+      renderMap();
+    }
+
+    function selectClan(cl, catId) {
+      activeClan = cl;
+      var mine = MY_CLANS.includes(cl);
+      document.getElementById('hud-title').textContent = cl + ' clan network';
+      document.getElementById('hud-sub').textContent = 'Nodes where ' + cl + ' talent is found';
+      if (mine) {
+        document.getElementById('hud-clan').classList.add('show');
+        document.getElementById('hud-clan-v').textContent = cl + ' is your lineage — glowing nodes';
+        document.getElementById('leg-clan-row').style.display = 'flex';
+      }
+      buildMapSidebar();
+      renderMap();
+    }
+
+    function buildClanList(catId) {
+      var counts = {};
+      nodes.forEach(function(n) {
+        var clans = n.clans[catId] || [];
+        clans.forEach(function(cl) {
+          if (!counts[cl]) counts[cl] = 0;
+          counts[cl] += (n.cats[catId] || 0);
+        });
+      });
+      var sorted = Object.keys(counts).sort(function(a, b) { return counts[b] - counts[a]; });
+      var list = document.getElementById('clan-list');
+      list.innerHTML = '';
+      sorted.slice(0, 10).forEach(function(cl) {
+        var mine = MY_CLANS.includes(cl);
+        var d = document.createElement('div');
+        d.className = 'clan-row-item' + (mine ? ' mine' : '') + (activeClan === cl ? ' on' : '');
+        d.innerHTML = '<span class="clan-row-name">' + cl + (mine ? ' 🔗' : '') + '</span><span class="clan-row-pct">' +
+          Math.round(counts[cl] / 10) + '%</span>';
+        d.onclick = function() { selectClan(cl, catId); };
+        list.appendChild(d);
+      });
+      document.getElementById('clan-list-wrap').style.display = 'block';
+      document.getElementById('clan-section-cat').textContent = cats.find(function(c) { return c.id === catId; })
+      .name;
+    }
+
+    function renderMap() {
+      var nl = document.getElementById('map-nodes');
+      var ll = document.getElementById('map-labels');
+      var pl = document.getElementById('map-pulse');
+      var hl = document.getElementById('map-halos');
+      nl.innerHTML = '';
+      ll.innerHTML = '';
+      pl.innerHTML = '';
+      hl.innerHTML = '';
+      if (!activeCat) {
+        nodes.forEach(function(n) { drawNodeEl(n, 'rgba(0,180,255,0.2)', 6, 0.4, false);
+          drawLabelEl(n, 'rgba(0,180,255,0.3)', false, 6); });
+        return;
+      }
+      var cat = cats.find(function(c) { return c.id === activeCat; });
+      var color = cat.color;
+      var vals = nodes.map(function(n) { return n.cats[activeCat] || 0; });
+      var maxVal = Math.max.apply(null, vals);
+      nodes.forEach(function(n) {
+        var val = n.cats[activeCat] || 0;
+        var r = 6 + (val / maxVal) * 20;
+        var opacity = 0.3 + (val / maxVal) * 0.7;
+        var clans = n.clans[activeCat] || [];
+        var isMine = activeClan ? (clans.includes(activeClan) && MY_CLANS.includes(activeClan)) : false;
+        var isClan = activeClan ? clans.includes(activeClan) : false;
+
+        var nodeColor = isMine ? 'var(--map-clan-gold)' : (isClan ? color : (activeClan ? 'rgba(0,180,255,0.15)' :
+          color));
+        var nodeOpacity = activeClan ? (isClan ? Math.min(1, opacity + 0.1) : 0.12) : opacity;
+        var glowFilter = isMine ? 'url(#glow-gold)' : (opacity > 0.5 ? 'url(#glow-lg)' : 'url(#glow-sm)');
+
+        if (isMine) {
+          [16, 10, 6].forEach(function(e, i) {
+            var h = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            h.setAttribute('cx', n.x);
+            h.setAttribute('cy', n.y);
+            h.setAttribute('r', r + parseInt(e));
+            h.setAttribute('fill', 'none');
+            h.setAttribute('stroke', 'var(--map-clan-gold)');
+            h.setAttribute('stroke-width', i === 0 ? '2' : '1');
+            h.setAttribute('opacity', i === 0 ? '0.2' : (i === 1 ? '0.15' : '0.1'));
+            hl.appendChild(h);
+          });
+        }
+
+        var pulse = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        pulse.setAttribute('cx', n.x);
+        pulse.setAttribute('cy', n.y);
+        pulse.setAttribute('r', r + 5);
+        pulse.setAttribute('fill', 'none');
+        pulse.setAttribute('stroke', isMine ? 'var(--map-clan-gold)' : nodeColor);
+        pulse.setAttribute('stroke-width', isMine ? '2' : '0.8');
+        pulse.setAttribute('opacity', isMine ? '0.25' : '0.1');
+        pl.appendChild(pulse);
+
+        drawNodeEl(n, nodeColor, r, nodeOpacity, true, glowFilter);
+
+        if (r > 11) {
+          var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          t.setAttribute('x', n.x);
+          t.setAttribute('y', n.y + 3);
+          t.setAttribute('text-anchor', 'middle');
+          t.setAttribute('font-size', Math.max(7, r * 0.45));
+          t.setAttribute('fill', '#060e0a');
+          t.setAttribute('font-weight', '800');
+          t.setAttribute('pointer-events', 'none');
+          t.textContent = (n.cats[activeCat] || 0) + '%';
+          nl.appendChild(t);
+        }
+        drawLabelEl(n, isMine ? 'var(--map-clan-gold)' : nodeColor, isMine, r);
+      });
+    }
+
+    function drawNodeEl(n, color, r, opacity, interactive, filter) {
+      var nl = document.getElementById('map-nodes');
+      var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', n.x);
+      c.setAttribute('cy', n.y);
+      c.setAttribute('r', r);
+      c.setAttribute('fill', color);
+      c.setAttribute('opacity', opacity);
+      if (filter) c.setAttribute('filter', filter);
+      c.setAttribute('cursor', 'pointer');
+      if (interactive) {
+        c.addEventListener('mouseenter', function(e) { showNodeTooltip(e, n); });
+        c.addEventListener('mouseleave', function() { document.getElementById('node-tooltip').style.display =
+          'none'; });
+        c.addEventListener('click', function() { showClanSheet(n); });
+        c.addEventListener('touchstart', function(e) {
+          e.preventDefault();
+          showClanSheet(n);
+        }, { passive: false });
+      }
+      nl.appendChild(c);
+    }
+
+    function drawLabelEl(n, color, bold, r) {
+      var ll = document.getElementById('map-labels');
+      var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      var off = r ? r + 12 : 18;
+      t.setAttribute('x', n.x);
+      t.setAttribute('y', n.y + off);
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('font-size', bold ? '9' : '7.5');
+      t.setAttribute('fill', color);
+      t.setAttribute('opacity', bold ? '1' : '0.6');
+      t.setAttribute('font-weight', bold ? '700' : '400');
+      t.setAttribute('pointer-events', 'none');
+      t.textContent = n.city + (bold ? ' 🔗' : '');
+      ll.appendChild(t);
+    }
+
+    function showNodeTooltip(e, n) {
+      var tt = document.getElementById('node-tooltip');
+      var canvas = document.getElementById('map-canvas');
+      var rect = canvas.getBoundingClientRect();
+      document.getElementById('nt-district').textContent = n.district;
+      document.getElementById('nt-city').textContent = n.city;
+      var pct = activeCat ? (n.cats[activeCat] || 0) : 0;
+      var cat = activeCat ? cats.find(function(c) { return c.id === activeCat; }) : null;
+      document.getElementById('nt-pct').textContent = pct + '%';
+      document.getElementById('nt-pct').style.color = cat ? cat.color : 'var(--map-blue)';
+      document.getElementById('nt-count').textContent = pct + ' talent index';
+      var clans = activeCat ? (n.clans[activeCat] || []) : [];
+      document.getElementById('nt-dclan').textContent = clans[0] || '—';
+      var mine = clans.some(function(cl) { return MY_CLANS.includes(cl); });
+      document.getElementById('nt-mine').style.display = mine ? 'block' : 'none';
+      var x = e.clientX - rect.left + 12,
+        y = e.clientY - rect.top - 16;
+      if (x + 190 > rect.width) x = e.clientX - rect.left - 200;
+      if (y < 0) y = 8;
+      tt.style.left = x + 'px';
+      tt.style.top = y + 'px';
+      tt.style.borderColor = cat ? cat.color : 'var(--border-subtle)';
+      tt.style.display = 'block';
+    }
+
+    function showClanSheet(n) {
+      var cat = activeCat ? cats.find(function(c) { return c.id === activeCat; }) : null;
+      var clans = activeCat ? (n.clans[activeCat] || []) : [];
+      document.getElementById('mcs-label').textContent = (cat ? cat.name + ' · ' : '') + n.district;
+      document.getElementById('mcs-title').textContent = n.city + (activeCat ? ' — ' + (n.cats[activeCat] || 0) +
+        '% talent index' : '');
+      var chips = document.getElementById('mcs-chips');
+      chips.innerHTML = '';
+      clans.forEach(function(cl) {
+        var mine = MY_CLANS.includes(cl);
+        var d = document.createElement('div');
+        d.className = 'mcs-chip' + (mine ? ' mine' : '');
+        d.textContent = cl + (mine ? ' 🔗' : '');
+        d.onclick = function() { if (activeCat) selectClan(cl, activeCat); };
+        chips.appendChild(d);
+      });
+      document.getElementById('map-clan-sheet').classList.add('show');
+      document.getElementById('node-tooltip').style.display = 'none';
+    }
+
+    // Map pan/zoom
+    var svgEl = document.getElementById('kzn-svg');
+    var mapArea = document.getElementById('map-canvas');
+    if (mapArea) {
+      mapArea.addEventListener('mousedown', function(e) {
+        if (e.target.tagName === 'circle') return;
+        dragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startTx = mapTx;
+        startTy = mapTy;
+      });
+      window.addEventListener('mouseup', function() { dragging = false; });
+      window.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        mapTx = startTx + (e.clientX - startX);
+        mapTy = startTy + (e.clientY - startY);
+        applyMapT();
+      });
+      mapArea.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        mapScale = Math.min(5, Math.max(0.4, mapScale * (e.deltaY > 0 ? 0.9 : 1.1)));
+        applyMapT();
+      }, { passive: false });
+    }
+
+    function mapZoom(f) { mapScale = Math.min(5, Math.max(0.4, mapScale * f));
+      applyMapT(); }
+
+    function mapReset() { mapScale = 1;
+      mapTx = 0;
+      mapTy = 0;
+      applyMapT(); }
+
+    function applyMapT() { if (svgEl) svgEl.style.transform = 'translate(' + mapTx + 'px,' + mapTy + 'px) scale(' + mapScale +
+        ')';
+      svgEl.style.transformOrigin = 'center center'; }
+
+    // ── Resource Explorer ──
+    function openResource(id) {
+      document.getElementById('res-detail').style.display = 'block';
+      showIconContent('trade-ic');
+    }
+
+    function showIconContent(id) {
+      var allIds = ['map-ic', 'history-ic', 'people-ic', 'trade-ic', 'events-ic'];
+      allIds.forEach(function(aid) { var el = document.getElementById(aid); if (el) el.style.display = 'none'; });
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
