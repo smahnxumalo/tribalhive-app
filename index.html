@@ -1946,7 +1946,7 @@
     }
 
     /* ═══════════════════════════════════════════
-       PROJECT STORY (fully preserved)
+       DEVELOPMENT HUB (was Project Story)
     ═══════════════════════════════════════════ */
     .story-shell {
       display: grid;
@@ -3030,7 +3030,7 @@
             <div class="prev-sb-item">🏠 Home</div>
             <div class="prev-sb-item on">🗺️ Community Map</div>
             <div class="prev-sb-item">🧭 Resource Explorer</div>
-            <div class="prev-sb-item">📖 Project Story</div>
+            <div class="prev-sb-item">📖 Development Hub</div>
             <div class="prev-sb-item">👤 Profile</div>
           </div>
           <div class="prev-map">
@@ -3160,7 +3160,7 @@
         <div class="sb-item on" id="nav-home" onclick="showTab('home')"><span class="ico">🏠</span><span>Home</span></div>
         <div class="sb-item" id="nav-map" onclick="showTab('map')"><span class="ico">🗺️</span><span>Community Map</span></div>
         <div class="sb-item" id="nav-resources" onclick="showTab('resources')"><span class="ico">🧭</span><span>Resource Explorer</span></div>
-        <div class="sb-item" id="nav-story" onclick="showTab('story')"><span class="ico">📖</span><span>Project Story</span></div>
+        <div class="sb-item" id="nav-story" onclick="showTab('story')"><span class="ico">📖</span><span>Development Hub</span></div>
         <div class="sb-item" id="nav-profile" onclick="showTab('profile')"><span class="ico">👤</span><span>Profile</span></div>
       </nav>
       <div class="sb-profile">
@@ -3195,7 +3195,7 @@
             <div class="home-greeting">Good morning, Simangele 👋</div>
             <div class="home-sub">Your Nxumalo lineage is connected to 6 talent nodes across KZN.</div>
 
-            <!-- ── HOME CHALLENGE CARD (NEW) ── -->
+            <!-- ── HOME CHALLENGE CARD ── -->
             <div class="home-challenge-card" onclick="showTab('profile'); switchProfileTab('challenges')">
               <div class="home-challenge-header">
                 <span class="home-challenge-label">🔥 Current Challenge</span>
@@ -3216,7 +3216,7 @@
               <button class="pill pill-blue" onclick="homeAsk('Show my Nxumalo clan on the map')">Show my clan on the map 🔗</button>
               <button class="pill pill-outline" onclick="homeAsk('What is KZN producing most?')">What is KZN producing most?</button>
               <button class="pill pill-outline" onclick="homeAsk('Find engineering talent near Nongoma')">Engineering talent near Nongoma</button>
-              <button class="pill pill-outline" onclick="homeAsk('New project stories in KZN')">New projects in KZN</button>
+              <button class="pill pill-outline" onclick="homeAsk('New projects in KZN')">New projects in KZN</button>
             </div>
             <div class="home-input-row">
               <input class="home-input" id="home-input" placeholder="Ask Hive AI anything about talent or development in KZN..." onkeydown="if(event.key==='Enter')sendHome()" />
@@ -3317,7 +3317,7 @@
           </div>
         </div>
 
-        <!-- ── RESOURCE EXPLORER TAB ── (preserved) -->
+        <!-- ── RESOURCE EXPLORER TAB ── -->
         <div class="tab" id="tab-resources">
           <div class="resource-wrap">
             <div class="resource-header">
@@ -3554,7 +3554,7 @@
           </div>
         </div>
 
-        <!-- ── PROJECT STORY TAB ── (fully preserved) -->
+        <!-- ── DEVELOPMENT HUB TAB ── (was Project Story) -->
         <div class="tab" id="tab-story">
           <div class="story-shell">
             <div class="story-list">
@@ -3710,17 +3710,17 @@
           </div>
         </div>
 
-        <!-- ── PROFILE TAB ── (with sub-tabs + challenges) -->
+        <!-- ── PROFILE TAB ── -->
         <div class="tab" id="tab-profile">
           <div class="profile-wrap">
 
-            <!-- Profile Sub-Navigation (NEW) -->
+            <!-- Profile Sub-Navigation -->
             <div class="profile-sub-nav">
               <button class="profile-sub-tab on" onclick="switchProfileTab('overview')">👤 Overview</button>
               <button class="profile-sub-tab" onclick="switchProfileTab('challenges')">🏆 Challenges</button>
             </div>
 
-            <!-- ── PROFILE OVERVIEW ── (preserved from your code) -->
+            <!-- ── PROFILE OVERVIEW ── -->
             <div class="profile-sub-pane on" id="profile-overview">
               <div class="profile-hero">
                 <div class="profile-avatar-lg">SN</div>
@@ -3794,7 +3794,7 @@
               </div>
             </div>
 
-            <!-- ── CHALLENGES SUB-TAB (NEW) ── -->
+            <!-- ── CHALLENGES SUB-TAB ── -->
             <div class="profile-sub-pane" id="profile-challenges">
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
                 <div>
@@ -3907,7 +3907,7 @@
     </button>
     <button class="mobile-nav-item" onclick="showTab('story')" data-tab="story">
       <span class="nav-icon">📖</span>
-      <span class="nav-label">Stories</span>
+      <span class="nav-label">Hub</span>
     </button>
     <button class="mobile-nav-item" onclick="showTab('profile')" data-tab="profile">
       <span class="nav-icon">👤</span>
@@ -3963,7 +3963,7 @@
       }
     }
 
-    // ── Profile sub-tab switching (NEW) ──
+    // ── Profile sub-tab switching ──
     function switchProfileTab(id) {
       document.querySelectorAll('.profile-sub-pane').forEach(function(p) { p.classList.remove('on'); });
       document.querySelectorAll('.profile-sub-tab').forEach(function(t) { t.classList.remove('on'); });
@@ -3971,7 +3971,6 @@
       var pane = document.getElementById('profile-' + id);
       if (pane) pane.classList.add('on');
 
-      // Find the tab button that matches
       var tabs = document.querySelectorAll('.profile-sub-tab');
       tabs.forEach(function(t) {
         if (t.textContent.toLowerCase().includes(id)) {
@@ -4111,7 +4110,7 @@
           'Show my Nxumalo clan on the map': 'Navigating to the Community Map and filtering for Nxumalo clan connections across KZN. You have connections in <strong>6 nodes</strong> — Nongoma, Vryheid, Ulundi, Durban, Ladysmith, and Mkuze. Your clan shows strength in Sport & Athletics and Agriculture.',
           'What is KZN producing most?': 'KZN\'s top talent category is <strong>Sport & Athletics at 20%</strong>, followed by Agriculture at 18% and Arts & Culture at 16%. The most critical gap is Healthcare at just 5% — a development opportunity that needs urgent attention.',
           'Find engineering talent near Nongoma': 'Engineering talent near Nongoma (Zululand district) sits at <strong>12%</strong> of the local index. Key clan surnames: Nxumalo, Dlamini, Buthelezi. The nearest engineering concentration hub is Ulundi at 19% and Richards Bay at 20%.',
-          'New project stories in KZN': 'There are <strong>4 active projects</strong> in KZN right now. The Rural School Infrastructure Programme in Nkandla (R350m) has an open community poll. The Clean Water Access Programme in Richards Bay is seeking community votes urgently.'
+          'New projects in KZN': 'There are <strong>4 active projects</strong> in KZN right now. The Rural School Infrastructure Programme in Nkandla (R350m) has an open community poll. The Clean Water Access Programme in Richards Bay is seeking community votes urgently.'
         };
         var reply = responses[val] ||
           'That\'s a great question about KZN\'s development. Based on the current talent data and community intelligence in our database, I can see several relevant patterns. Would you like me to filter the Community Map to show you this directly?';
@@ -4354,7 +4353,8 @@
       activeSub = sub;
       activeClan = null;
       document.getElementById('hud-title').textContent = sub + ' — KZN';
-      document.getElementById('hud-sub').textContent = cats.find(function(c) { return c.id === catId; }).name +
+      document.getElementById('hud-sub').textContent = cats.find(function(c) { return c.id === catId; })
+      .name +
       ' subcategory';
       buildMapSidebar();
       renderMap();
